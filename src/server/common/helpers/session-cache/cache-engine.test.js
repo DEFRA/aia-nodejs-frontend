@@ -72,7 +72,7 @@ describe('#getCacheEngine', () => {
                 host: '127.0.0.1',
                 username: '',
                 password: '',
-                keyPrefix: 'aia-nodejs-frontend:',
+                keyPrefix: 'aia-frontend:',
                 useSingleInstanceCache: true,
                 useTLS: false
               }

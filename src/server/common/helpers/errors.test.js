@@ -101,15 +101,15 @@ describe('#catchAll', () => {
   })
 
   test('Should provide expected default page', () => {
-    catchAll(mockRequest(statusCodes.imATeapot), mockToolkit)
+    catchAll(mockRequest(418), mockToolkit)
 
     expect(mockErrorLogger).not.toHaveBeenCalledWith(mockStack)
     expect(mockToolkitView).toHaveBeenCalledWith(errorPage, {
       pageTitle: 'Something went wrong',
-      heading: statusCodes.imATeapot,
+      heading: 418,
       message: 'Something went wrong'
     })
-    expect(mockToolkitCode).toHaveBeenCalledWith(statusCodes.imATeapot)
+    expect(mockToolkitCode).toHaveBeenCalledWith(418)
   })
 
   test('Should provide expected "Something went wrong" page and log error for internalServerError', () => {

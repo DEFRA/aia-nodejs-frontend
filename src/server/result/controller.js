@@ -141,10 +141,6 @@ export const resultController = {
       pageTitle: 'Result',
       heading: 'Result',
       markdownContent
-      // breadcrumbs: [
-      //   { text: 'Home', href: '/' },
-      //   { text: 'Result' }
-      // ]
     })
   }
 }

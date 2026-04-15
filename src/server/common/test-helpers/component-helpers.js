@@ -6,9 +6,6 @@ import nunjucks from 'nunjucks'
 import { load } from 'cheerio'
 import { camelCase } from 'lodash'
 
-import * as filters from '../../../config/nunjucks/filters/filters.js'
-import * as globals from '../../../config/nunjucks/globals/globals.js'
-
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nunjucksTestEnv = nunjucks.configure(
   [
@@ -21,14 +18,6 @@ const nunjucksTestEnv = nunjucks.configure(
     lstripBlocks: true
   }
 )
-
-Object.entries(globals).forEach(([name, global]) => {
-  nunjucksTestEnv.addGlobal(name, global)
-})
-
-Object.entries(filters).forEach(([name, filter]) => {
-  nunjucksTestEnv.addFilter(name, filter)
-})
 
 export function renderComponent(componentName, params, callBlock) {
   const macroPath = `${componentName}/macro.njk`

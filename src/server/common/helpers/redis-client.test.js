@@ -52,7 +52,7 @@ describe('#buildRedisClient', () => {
         expect.objectContaining({
           db: 0,
           host: '127.0.0.1',
-          keyPrefix: 'aia-nodejs-frontend:',
+          keyPrefix: 'aia-frontend:',
           port: 6379
         })
       )
@@ -91,7 +91,7 @@ describe('#buildRedisClient', () => {
         [{ host: '127.0.0.1', port: 6379 }],
         {
           dnsLookup: expect.any(Function),
-          keyPrefix: 'aia-nodejs-frontend:',
+          keyPrefix: 'aia-frontend:',
           redisOptions: { db: 0, password: 'pass', tls: {}, username: 'user' },
           slotsRefreshTimeout: 10000
         }

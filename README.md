@@ -1,4 +1,4 @@
-# aia-nodejs-frontend
+# aia-frontend
 
 ## Install Packages
 
