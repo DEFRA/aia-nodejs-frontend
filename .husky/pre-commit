@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+# Git hooks can run with a minimal PATH (for example from GUI clients).
+# Add common macOS Node installation paths before invoking npm.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+if ! command -v npm >/dev/null 2>&1; then
+	echo "pre-commit: npm is not available in PATH."
+	echo "pre-commit: ensure Node.js/npm is installed and accessible to Git hooks."
+	exit 127
+fi
+
+npm run git:pre-commit-hook
