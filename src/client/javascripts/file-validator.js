@@ -94,7 +94,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
     return {
       valid: false,
       message:
-        'Uploaded file is empty (0KB), Please upload a file with valid content.'
+        'Uploaded file is empty (0KB), Please upload a file with valid content'
     }
   }
 
@@ -103,7 +103,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
     const maxSizeMb = effectiveMaxFileSizeBytes / (1024 * 1024)
     return {
       valid: false,
-      message: `The selected file must be smaller than ${maxSizeMb}MB.`
+      message: `File exceeds the maximum allowed size of ${maxSizeMb} MB`
     }
   }
 
@@ -114,7 +114,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   } catch {
     return {
       valid: false,
-      message: 'The file could not be read.'
+      message: 'The file could not be read'
     }
   }
 
@@ -123,7 +123,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   if (startsWith(header, OLE2_MAGIC)) {
     return {
       valid: false,
-      message: 'Password‑protected file is not supported.'
+      message: 'Password‑protected file is not supported'
     }
   }
 
@@ -132,7 +132,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   if (!startsWith(header, ZIP_MAGIC)) {
     return {
       valid: false,
-      message: 'Please upload a valid DOCX file.'
+      message: 'Please upload a valid DOCX file'
     }
   }
 
@@ -143,7 +143,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   } catch {
     return {
       valid: false,
-      message: 'The file could not be read.'
+      message: 'The file could not be read'
     }
   }
 
@@ -153,7 +153,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   if (zipContainsEncryptionInfo(allBytes)) {
     return {
       valid: false,
-      message: 'Password‑protected file is not supported.'
+      message: 'Password‑protected file is not supported'
     }
   }
 
@@ -161,7 +161,7 @@ export async function validateDocxFile(file, { maxFileSizeBytes } = {}) {
   if (!zipContainsDocumentXml(allBytes)) {
     return {
       valid: false,
-      message: 'Please upload a valid DOCX file.'
+      message: 'Please upload a valid DOCX file'
     }
   }
 

@@ -194,7 +194,7 @@ describe('initUploadHandler', () => {
       await new Promise((resolve) => setTimeout(resolve, 100))
 
       expect(fileError.style.display).toBe('block')
-      expect(fileErrorText.textContent).toMatch(/smaller than/)
+      expect(fileErrorText.textContent).toMatch(/maximum allowed size/)
     })
   })
 

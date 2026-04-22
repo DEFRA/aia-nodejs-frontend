@@ -66,7 +66,7 @@ describe('validateDocxFile', () => {
       Object.defineProperty(file, 'size', { value: 51 * 1024 * 1024 })
       const result = await validateDocxFile(file)
       expect(result.valid).toBe(false)
-      expect(result.message).toContain('50MB')
+      expect(result.message).toContain('50 MB')
     })
 
     test('rejects file larger than custom maxFileSizeBytes', async () => {
@@ -76,7 +76,7 @@ describe('validateDocxFile', () => {
         maxFileSizeBytes: 10 * 1024 * 1024
       })
       expect(result.valid).toBe(false)
-      expect(result.message).toContain('10MB')
+      expect(result.message).toContain('10 MB')
     })
 
     test('includes actual file size MB in the error message', async () => {
@@ -86,7 +86,7 @@ describe('validateDocxFile', () => {
       expect(result.valid).toBe(false)
       // size message includes the configured max and actual size
       expect(result.message).toContain('MB')
-      expect(result.message).toContain('smaller than')
+      expect(result.message).toContain('File exceeds the maximum allowed size')
     })
 
     test('falls back to default 50 MB when maxFileSizeBytes is 0', async () => {

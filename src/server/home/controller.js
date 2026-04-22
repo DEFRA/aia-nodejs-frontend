@@ -2,8 +2,12 @@
  * A GDS styled example home page controller.
  * Provided as an example, remove or modify as required.
  */
+import { createRequire } from 'module'
 import { config } from '../../config/config.js'
 import { buildBackendHeaders } from '../common/helpers/backend-headers.js'
+
+const require = createRequire(import.meta.url)
+const fallbackUploads = require('./uploads.json')
 
 /**
  * Build GOV.UK pagination items with ellipsis for large page counts.
@@ -93,9 +97,12 @@ export const homeController = {
       )
       if (res.ok) {
         uploadsData = await res.json()
+      } else {
+        uploadsData = fallbackUploads
       }
     } catch (err) {
       request.logger.error({ err }, 'Failed to fetch upload history')
+      uploadsData = fallbackUploads
     }
 
     // Read and clear any upload error stored by the POST handler
@@ -109,6 +116,7 @@ export const homeController = {
       pageTitle: uploadError ? 'Error: Upload Document' : 'Upload Document',
       heading: 'Home',
       uploads: pageUploads,
+      allUploadFilenames: uploadsData.map((u) => u.filename),
       pagination,
       paginationAlignment: config.get('pagination.alignment'),
       maxUploadFileSizeBytes: config.get('upload.maxFileSizeMb') * 1024 * 1024,
@@ -135,6 +143,7 @@ export const uploadController = {
 
     if (!file) {
       request.logger.error('No file in payload')
+      request.yar.flash('uploadError', 'Please select a file')
       return h.redirect('/')
     }
 
