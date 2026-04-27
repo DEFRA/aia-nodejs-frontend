@@ -38,6 +38,7 @@ export const accessCodePostController = {
 
     if (isValidAccessCode(accessCode)) {
       request.yar.set('accessGranted', true)
+      request.yar.set('lastActivity', Date.now())
       return h.redirect('/home')
     }
 

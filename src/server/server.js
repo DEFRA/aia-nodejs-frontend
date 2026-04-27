@@ -69,7 +69,9 @@ export async function createServer() {
     router // Register all the controllers/routes defined in src/server/router.js
   ])
 
-  // Guard: redirect to access-code page if not authenticated
+  // Guard: redirect to access-code page if not authenticated or inactive
+  const inactivityTimeoutMs = config.get('inactivityTimeoutMs')
+
   server.ext('onPreAuth', (request, h) => {
     const path = request.path
     if (isPublicPath(path)) {
@@ -80,6 +82,15 @@ export async function createServer() {
     if (!accessGranted) {
       return h.redirect('/').takeover()
     }
+
+    // Check inactivity timeout
+    const lastActivity = request.yar.get('lastActivity')
+    const now = Date.now()
+    if (lastActivity && now - lastActivity > inactivityTimeoutMs) {
+      request.yar.reset()
+      return h.redirect('/').takeover()
+    }
+    request.yar.set('lastActivity', now)
 
     return h.continue
   })

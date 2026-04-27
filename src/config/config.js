@@ -53,6 +53,12 @@ export const config = convict({
     default: '9b4fb2d029c5eeb30a2aee9fbc713c5b6bd606bb264b328ca003741e29f5a554',
     env: 'ACCESS_CODE_HASH'
   },
+  inactivityTimeoutMs: {
+    doc: 'Inactivity timeout in milliseconds. User is logged out after this period of inactivity.',
+    format: Number,
+    default: 3600000,
+    env: 'INACTIVITY_TIMEOUT_MS'
+  },
   serviceName: {
     doc: 'Applications Service Name',
     format: String,
