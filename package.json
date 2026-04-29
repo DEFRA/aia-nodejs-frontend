@@ -16,6 +16,7 @@
     "format": "prettier --write \"src/**/*.js\" \"**/*.{js,cjs,md,json,config.js,test.js}\"",
     "format:check": "prettier --check \"src/**/*.js\" \"**/*.{js,cjs,md,json,config.js,test.js}\"",
     "frontend:watch": "cross-env NODE_ENV=development webpack --watch",
+    "pr-prep": "run-s lint format:check test",
     "git:pre-commit-hook": "npm run security-audit || echo 'Warning: security-audit failed; continuing pre-commit checks.' && npm run format:check && npm run lint && npm test",
     "postinstall": "npm run setup:husky",
     "lint": "run-s lint:js lint:scss",
