@@ -16,7 +16,7 @@ describe('#signoutController', () => {
     await server.stop({ timeout: 0 })
   })
 
-  test('Should return 200 and render the signout page', async () => {
+  test('returns 200 and renders the signed-out page', async () => {
     const { result, statusCode } = await server.inject({
       method: 'GET',
       url: '/signout',
@@ -24,6 +24,31 @@ describe('#signoutController', () => {
     })
 
     expect(statusCode).toBe(statusCodes.ok)
-    expect(result).toContain('AI Assure Architecture Governance')
+    expect(result).toContain('You have signed out')
+  })
+
+  test('resets the session so the new cookie can no longer access protected routes', async () => {
+    const freshCookie = await getAuthCookie(server)
+
+    const signoutRes = await server.inject({
+      method: 'GET',
+      url: '/signout',
+      headers: { cookie: freshCookie }
+    })
+
+    // Capture the new (cleared) session cookie set by the sign-out response
+    const setCookieHeader = signoutRes.headers['set-cookie']
+    const cookies = Array.isArray(setCookieHeader)
+      ? setCookieHeader
+      : [setCookieHeader]
+    const newCookie = cookies.map((c) => c.split(';')[0]).join('; ')
+
+    const { statusCode } = await server.inject({
+      method: 'GET',
+      url: '/home',
+      headers: { cookie: newCookie }
+    })
+
+    expect(statusCode).toBe(302)
   })
 })
