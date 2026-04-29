@@ -1,26 +1,25 @@
 /**
- * A GDS styled example result page controller.
- * Provided as an example, remove or modify as required.
+ * Result page controller.
+ * Fetches a document result from the backend API GET /documents/{documentId}
+ * and renders the resultMd markdown content.
  */
 
 import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
 import { dirname } from 'path'
 import { config } from '../../config/config.js'
+import { buildBackendHeaders } from '../common/helpers/backend-headers.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const RESULT2_DOC_ID = 'UUID-1234-5678-9012-abcdef123456'
 
-function resolveMockFileName(docID) {
-  return docID === RESULT2_DOC_ID ? 'result2.json' : 'result.json'
+function resolveMockFileName(documentId) {
+  return documentId === RESULT2_DOC_ID ? 'result2.json' : 'result.json'
 }
 
 function parseJsonPayload(payload) {
-  if (payload == null) {
-    return null
-  }
-
+  if (payload == null) return null
   if (typeof payload === 'string') {
     try {
       return JSON.parse(payload)
@@ -28,36 +27,26 @@ function parseJsonPayload(payload) {
       return payload
     }
   }
-
   return payload
 }
 
 function extractMarkdownContent(payload) {
   const parsedPayload = parseJsonPayload(payload)
 
-  if (typeof parsedPayload === 'string') {
-    return parsedPayload
-  }
+  if (typeof parsedPayload === 'string') return parsedPayload
+  if (!parsedPayload || typeof parsedPayload !== 'object') return ''
 
-  if (!parsedPayload || typeof parsedPayload !== 'object') {
-    return ''
-  }
+  // Backend API returns { resultMd: "..." }
+  if (typeof parsedPayload.resultMd === 'string') return parsedPayload.resultMd
 
   const candidates = [parsedPayload, parsedPayload.result, parsedPayload.data]
-
   for (const candidate of candidates) {
-    if (!candidate || typeof candidate !== 'object') {
-      continue
-    }
-
+    if (!candidate || typeof candidate !== 'object') continue
     if (typeof candidate.markdownContent === 'string') {
       return candidate.markdownContent
     }
-
-    if (typeof candidate.markdown === 'string') {
-      return candidate.markdown
-    }
-
+    if (typeof candidate.markdown === 'string') return candidate.markdown
+    if (typeof candidate.resultMd === 'string') return candidate.resultMd
     if (
       Array.isArray(candidate.content) &&
       typeof candidate.content[0]?.text === 'string'
@@ -65,22 +54,25 @@ function extractMarkdownContent(payload) {
       return candidate.content[0].text
     }
   }
-
   return ''
 }
 
-function getMockResultContent(docID) {
-  const mockFileName = resolveMockFileName(docID)
+function getMockResultContent(documentId) {
+  const mockFileName = resolveMockFileName(documentId)
   const resultsDataRaw = readFileSync(`${__dirname}/${mockFileName}`, 'utf8')
   const resultsData = JSON.parse(resultsDataRaw)
   return extractMarkdownContent(resultsData)
 }
 
-async function getApiResultContent(docID) {
-  const apiUrl = config.get('result.apiUrl')
+async function getApiResultContent(documentId, request) {
+  const backendApiUrl = config.get('backendApiUrl')
 
-  if (!apiUrl) {
-    throw new Error('RESULT_API_URL is not configured')
+  if (!backendApiUrl) {
+    throw new Error('BACKEND_API_URL is not configured')
+  }
+
+  if (!documentId) {
+    throw new Error('documentId is required')
   }
 
   const timeoutMs = config.get('result.apiTimeoutMs')
@@ -88,15 +80,11 @@ async function getApiResultContent(docID) {
   const timeoutHandle = setTimeout(() => timeoutController.abort(), timeoutMs)
 
   try {
-    const requestUrl = new URL(apiUrl)
-    if (docID) {
-      requestUrl.searchParams.set('docID', docID)
-    }
-
-    const response = await fetch(requestUrl, {
+    const response = await fetch(`${backendApiUrl}/documents/${documentId}`, {
       method: 'GET',
       signal: timeoutController.signal,
       headers: {
+        ...buildBackendHeaders(request),
         accept: 'application/json'
       }
     })
@@ -107,8 +95,12 @@ async function getApiResultContent(docID) {
       )
     }
 
-    const bodyText = await response.text()
-    return extractMarkdownContent(bodyText)
+    const body = await response.json()
+    // Backend returns { documentId, status, resultMd, errorMessage, ... }
+    if (body.status === 'ERROR') {
+      return body.errorMessage ?? 'An error occurred during processing.'
+    }
+    return body.resultMd ?? ''
   } finally {
     clearTimeout(timeoutHandle)
   }
@@ -116,14 +108,18 @@ async function getApiResultContent(docID) {
 
 export const resultController = {
   async handler(request, h) {
-    const docID = request.query.docID
+    const documentId = request.query.documentId
     let markdownContent = ''
 
     try {
-      if (config.get('result.mockData')) {
-        markdownContent = getMockResultContent(docID)
-      } else {
-        markdownContent = await getApiResultContent(docID)
+      try {
+        markdownContent = await getApiResultContent(documentId, request)
+      } catch (apiErr) {
+        request.logger.error(
+          { err: apiErr, documentId },
+          'Backend API unavailable for result content, falling back to mock data'
+        )
+        markdownContent = getMockResultContent(documentId)
       }
 
       if (!markdownContent) {
@@ -131,7 +127,7 @@ export const resultController = {
       }
     } catch (err) {
       request.logger.error(
-        { err, docID },
+        { err, documentId },
         'Failed to load result content from configured data source'
       )
       markdownContent = 'Error loading result content.'

@@ -8,7 +8,6 @@ import {
 } from 'govuk-frontend'
 
 import { initUploadHandler } from './upload-handler.js'
-import { initWipModal } from './wip-modal-handler.js'
 
 createAll(Button)
 createAll(Checkboxes)
@@ -18,8 +17,4 @@ createAll(SkipLink)
 
 if (document.getElementById('uploadForm')) {
   initUploadHandler()
-}
-
-if (document.getElementById('wipModal')) {
-  initWipModal()
 }

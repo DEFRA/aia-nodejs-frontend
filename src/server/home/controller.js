@@ -89,34 +89,71 @@ function buildPageData(requestedPage, uploadsData) {
 
 export const homeController = {
   async handler(request, h) {
+    const requestedPage = parseInt(request.query.page, 10) || 1
+    const itemsPerPage = config.get('pagination.itemsPerPage')
     let uploadsData = []
+    let totalItems = 0
+    let useFallback = false
+
     try {
       const res = await fetch(
-        `${config.get('backendApiUrl')}/fetchUploadHistory`,
+        `${config.get('backendApiUrl')}/documents?page=${requestedPage}&limit=${itemsPerPage}`,
         { headers: buildBackendHeaders(request) }
       )
       if (res.ok) {
-        uploadsData = await res.json()
+        const body = await res.json()
+        // Backend returns { documents, total, page, limit }
+        uploadsData = body.documents ?? []
+        totalItems = body.total ?? uploadsData.length
       } else {
-        uploadsData = fallbackUploads
+        useFallback = true
       }
     } catch (err) {
       request.logger.error({ err }, 'Failed to fetch upload history')
-      uploadsData = fallbackUploads
+      useFallback = true
     }
 
     // Read and clear any upload error stored by the POST handler
     const uploadError = request.yar.flash('uploadError')[0] ?? null
 
-    const { pageUploads, pagination } = buildPageData(
-      request.query.page,
-      uploadsData
-    )
+    let pageUploads, pagination
+    if (useFallback) {
+      // Client-side pagination on fallback mock data
+      ;({ pageUploads, pagination } = buildPageData(
+        requestedPage,
+        fallbackUploads
+      ))
+    } else {
+      // Server already paginated — build pagination from total
+      const totalPages = Math.ceil(totalItems / itemsPerPage) || 1
+      const currentPage = Math.min(Math.max(requestedPage, 1), totalPages)
+      const startIndex = (currentPage - 1) * itemsPerPage
+      const endIndex = Math.min(startIndex + uploadsData.length, totalItems)
+
+      pageUploads = uploadsData
+      pagination = {
+        summary: {
+          startItem: startIndex + 1,
+          endItem: endIndex,
+          totalItems
+        },
+        items: buildPaginationItems(currentPage, totalPages),
+        previous:
+          currentPage > 1
+            ? { href: `?page=${currentPage - 1}`, text: 'Previous' }
+            : null,
+        next:
+          currentPage < totalPages
+            ? { href: `?page=${currentPage + 1}`, text: 'Next' }
+            : null
+      }
+    }
+
     return h.view('home/index', {
       pageTitle: uploadError ? 'Error: Upload Document' : 'Upload Document',
       heading: 'Home',
       uploads: pageUploads,
-      allUploadFilenames: uploadsData.map((u) => u.filename),
+      allUploadFilenames: uploadsData.map((u) => u.originalFilename),
       pagination,
       paginationAlignment: config.get('pagination.alignment'),
       maxUploadFileSizeBytes: config.get('upload.maxFileSizeMb') * 1024 * 1024,
@@ -147,7 +184,7 @@ export const uploadController = {
       return h.redirect('/home')
     }
 
-    const backendUrl = `${config.get('backendApiUrl')}/upload`
+    const backendUrl = `${config.get('backendApiUrl')}/documents/upload`
     request.logger.info({ backendUrl }, 'Calling backend upload')
 
     const formData = new FormData()
@@ -193,7 +230,7 @@ export const uploadController = {
       )
     }
 
-    return h.redirect('/')
+    return h.redirect('/home')
   }
 }
 

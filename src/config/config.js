@@ -91,20 +91,13 @@ export const config = convict({
   },
   result: {
     mockData: {
-      doc: 'Use local mock result files instead of invoking the result API',
+      doc: 'Use local mock result files instead of invoking the backend documents API',
       format: Boolean,
       default: true,
       env: 'MOCK_DATA_RESULT'
     },
-    apiUrl: {
-      doc: 'Result API endpoint used when mockData is disabled',
-      format: String,
-      nullable: true,
-      default: null,
-      env: 'RESULT_API_URL'
-    },
     apiTimeoutMs: {
-      doc: 'Timeout for result API requests in milliseconds',
+      doc: 'Timeout for result/document API requests in milliseconds',
       format: Number,
       default: 15000,
       env: 'RESULT_API_TIMEOUT_MS'
@@ -276,7 +269,7 @@ export const config = convict({
   backendApiUrl: {
     doc: 'Backend service base URL',
     format: String,
-    default: 'http://localhost:8085/api',
+    default: 'http://localhost:8086/api/v1',
     env: 'BACKEND_API_URL'
   }
 })

@@ -12,7 +12,6 @@
  */
 
 import { validateDocxFile } from './file-validator.js'
-import { openWipModal } from './wip-modal-handler.js'
 
 // ── Error summary helper ───────────────────────────────────────────────────────
 
@@ -186,7 +185,7 @@ export function initUploadHandler() {
         return
       }
 
-      openWipModal()
+      form.submit()
     })
   }
 }

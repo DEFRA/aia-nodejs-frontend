@@ -71,16 +71,14 @@
     <tbody class="govuk-table__body">
       {% for upload in uploads %}
       <tr class="govuk-table__row">
-        <td class="govuk-table__cell">{{ upload.file_name }}</td>
-        <td class="govuk-table__cell">{{ upload.template_type }}</td>
+        <td class="govuk-table__cell">{{ upload.originalFilename }}</td>
+        <td class="govuk-table__cell">{{ upload.templateType }}</td>
         <td class="govuk-table__cell"><span class="status-badge status-{{ upload.status | lower }}">{{ upload.status }}</span></td>
-        <td class="govuk-table__cell">{{ upload.uploaded_ts }}</td>
+        <td class="govuk-table__cell">{{ upload.createdAt }}</td>
         <td class="govuk-table__cell">
           {% if upload.status == 'Completed' %}
-            {# <a href="#" class="govuk-link js-open-wip-modal">View Results</a> #}
-            <a href="/result?docID={{ upload.docID }}" class="govuk-link">View Results</a>
+            <a href="/result?documentId={{ upload.documentId }}" class="govuk-link">View Results</a>
           {% elif upload.status == 'Error' %}
-            
           {% else %}
             <span class="govuk-hint">Processing...</span>
           {% endif %}
@@ -118,13 +116,5 @@
 </div>
 {% endif %}
 
-{# Work In Progress modal #}
-<div id="wipModal" class="app-modal-overlay" aria-modal="true" role="dialog" aria-labelledby="wipModalTitle">
-  <div class="app-modal">
-    <h2 class="govuk-heading-m" id="wipModalTitle">Work in progress</h2>
-    <p class="govuk-body">This feature is currently under development and will be available soon.</p>
-    <button class="govuk-button govuk-button--secondary" id="wipModalClose">Close</button>
-  </div>
-</div>
 
 {% endblock %}

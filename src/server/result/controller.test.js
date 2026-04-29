@@ -41,10 +41,10 @@ describe('#resultController', () => {
       expect(result).toContain('AI Assure Architecture Governance')
     })
 
-    test('Should render result2.json when docID matches RESULT2_DOC_ID', async () => {
+    test('Should render result2.json when documentId matches RESULT2_DOC_ID', async () => {
       const { result, statusCode } = await server.inject({
         method: 'GET',
-        url: '/result?docID=UUID-1234-5678-9012-abcdef123456',
+        url: '/result?documentId=UUID-1234-5678-9012-abcdef123456',
         headers: { cookie: authCookie }
       })
 
@@ -52,10 +52,10 @@ describe('#resultController', () => {
       expect(result).toContain('AI Assure Architecture Governance')
     })
 
-    test('Should render result.json for an unrecognised docID', async () => {
+    test('Should render result.json for an unrecognised documentId', async () => {
       const { result, statusCode } = await server.inject({
         method: 'GET',
-        url: '/result?docID=unknown-id',
+        url: '/result?documentId=unknown-id',
         headers: { cookie: authCookie }
       })
 
@@ -66,7 +66,7 @@ describe('#resultController', () => {
 
   describe('API mode (mockData = false)', () => {
     // We unit-test the controller handler directly by mocking the config module
-    // so we can control result.mockData and result.apiUrl independently.
+    // so we can control config values independently.
 
     let configGetMock
 
@@ -91,15 +91,19 @@ describe('#resultController', () => {
 
     function buildContext() {
       return {
-        request: { query: { docID: 'doc-123' }, logger: { error: vi.fn() } },
+        request: {
+          query: { documentId: 'doc-123' },
+          yar: { get: vi.fn() },
+          logger: { error: vi.fn() }
+        },
         h: { view: vi.fn((template, data) => data) }
       }
     }
 
-    test('Should return error content when RESULT_API_URL is not configured', async () => {
+    test('Should fall back to mock data when BACKEND_API_URL is not configured', async () => {
       configGetMock.mockImplementation((key) => {
         if (key === 'result.mockData') return false
-        if (key === 'result.apiUrl') return null
+        if (key === 'backendApiUrl') return null
         return null
       })
 
@@ -109,13 +113,14 @@ describe('#resultController', () => {
       const result = await handler(request, h)
 
       expect(request.logger.error).toHaveBeenCalled()
-      expect(result.markdownContent).toBe('Error loading result content.')
+      expect(result.markdownContent).toBeTruthy()
+      expect(result.markdownContent).not.toBe('Error loading result content.')
     })
 
-    test('Should return error content when fetch throws a network error', async () => {
+    test('Should fall back to mock data when fetch throws a network error', async () => {
       configGetMock.mockImplementation((key) => {
         if (key === 'result.mockData') return false
-        if (key === 'result.apiUrl') return 'http://api.example.com/result'
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
         if (key === 'result.apiTimeoutMs') return 5000
         return null
       })
@@ -129,15 +134,16 @@ describe('#resultController', () => {
       const result = await handler(request, h)
 
       expect(request.logger.error).toHaveBeenCalled()
-      expect(result.markdownContent).toBe('Error loading result content.')
+      expect(result.markdownContent).toBeTruthy()
+      expect(result.markdownContent).not.toBe('Error loading result content.')
 
       global.fetch = originalFetch
     })
 
-    test('Should return error content when API responds with non-ok status', async () => {
+    test('Should fall back to mock data when API responds with non-ok status', async () => {
       configGetMock.mockImplementation((key) => {
         if (key === 'result.mockData') return false
-        if (key === 'result.apiUrl') return 'http://api.example.com/result'
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
         if (key === 'result.apiTimeoutMs') return 5000
         return null
       })
@@ -155,7 +161,8 @@ describe('#resultController', () => {
       const result = await handler(request, h)
 
       expect(request.logger.error).toHaveBeenCalled()
-      expect(result.markdownContent).toBe('Error loading result content.')
+      expect(result.markdownContent).toBeTruthy()
+      expect(result.markdownContent).not.toBe('Error loading result content.')
 
       global.fetch = originalFetch
     })
@@ -163,7 +170,7 @@ describe('#resultController', () => {
     test('Should return API markdown content when fetch succeeds', async () => {
       configGetMock.mockImplementation((key) => {
         if (key === 'result.mockData') return false
-        if (key === 'result.apiUrl') return 'http://api.example.com/result'
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
         if (key === 'result.apiTimeoutMs') return 5000
         return null
       })
@@ -171,7 +178,12 @@ describe('#resultController', () => {
       const originalFetch = global.fetch
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        text: async () => '# My Result\n\nSome content here.'
+        json: async () => ({
+          documentId: 'doc-123',
+          status: 'COMPLETE',
+          resultMd: '# My Result\n\nSome content here.',
+          errorMessage: null
+        })
       })
 
       const handler = await buildHandler()
@@ -191,7 +203,7 @@ describe('#resultController', () => {
     test('Should return fallback message when API returns empty content', async () => {
       configGetMock.mockImplementation((key) => {
         if (key === 'result.mockData') return false
-        if (key === 'result.apiUrl') return 'http://api.example.com/result'
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
         if (key === 'result.apiTimeoutMs') return 5000
         return null
       })
@@ -199,7 +211,12 @@ describe('#resultController', () => {
       const originalFetch = global.fetch
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        text: async () => ''
+        json: async () => ({
+          documentId: 'doc-123',
+          status: 'COMPLETE',
+          resultMd: null,
+          errorMessage: null
+        })
       })
 
       const handler = await buildHandler()
@@ -208,6 +225,114 @@ describe('#resultController', () => {
       const result = await handler(request, h)
 
       expect(result.markdownContent).toBe('No result content available.')
+
+      global.fetch = originalFetch
+    })
+
+    test('Should fall back to mock data when documentId is missing', async () => {
+      configGetMock.mockImplementation((key) => {
+        if (key === 'result.mockData') return false
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
+        if (key === 'result.apiTimeoutMs') return 5000
+        return null
+      })
+
+      const handler = await buildHandler()
+      const { h } = buildContext()
+      const request = {
+        query: {},
+        yar: { get: vi.fn() },
+        logger: { error: vi.fn() }
+      }
+
+      const result = await handler(request, h)
+
+      expect(request.logger.error).toHaveBeenCalled()
+      expect(result.markdownContent).toBeTruthy()
+      expect(result.markdownContent).not.toBe('Error loading result content.')
+    })
+
+    test('Should return error message when API returns ERROR status', async () => {
+      configGetMock.mockImplementation((key) => {
+        if (key === 'result.mockData') return false
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
+        if (key === 'result.apiTimeoutMs') return 5000
+        return null
+      })
+
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          documentId: 'doc-123',
+          status: 'ERROR',
+          resultMd: null,
+          errorMessage: 'Processing failed for document'
+        })
+      })
+
+      const handler = await buildHandler()
+      const { request, h } = buildContext()
+
+      const result = await handler(request, h)
+
+      expect(result.markdownContent).toBe('Processing failed for document')
+
+      global.fetch = originalFetch
+    })
+
+    test('Should return "No result content available" when API returns no resultMd', async () => {
+      configGetMock.mockImplementation((key) => {
+        if (key === 'result.mockData') return false
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
+        if (key === 'result.apiTimeoutMs') return 5000
+        return null
+      })
+
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          documentId: 'doc-123',
+          status: 'COMPLETE'
+        })
+      })
+
+      const handler = await buildHandler()
+      const { request, h } = buildContext()
+
+      const result = await handler(request, h)
+
+      expect(result.markdownContent).toBe('No result content available.')
+
+      global.fetch = originalFetch
+    })
+
+    test('Should handle parseJsonPayload with a JSON string payload', async () => {
+      configGetMock.mockImplementation((key) => {
+        if (key === 'result.mockData') return false
+        if (key === 'backendApiUrl') return 'http://api.example.com/api/v1'
+        if (key === 'result.apiTimeoutMs') return 5000
+        return null
+      })
+
+      const originalFetch = global.fetch
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          documentId: 'doc-123',
+          status: 'COMPLETE',
+          resultMd: JSON.stringify({ markdown: '# Nested JSON string' })
+        })
+      })
+
+      const handler = await buildHandler()
+      const { request, h } = buildContext()
+
+      const result = await handler(request, h)
+
+      // resultMd is a string so extractMarkdownContent returns it directly
+      expect(result.markdownContent).toBeTruthy()
 
       global.fetch = originalFetch
     })
