@@ -13,6 +13,7 @@ import { sessionCache } from './common/helpers/session-cache/session-cache.js'
 import { getCacheEngine } from './common/helpers/session-cache/cache-engine.js'
 import { secureContext } from '@defra/hapi-secure-context'
 import { contentSecurityPolicy } from './common/helpers/content-security-policy.js'
+import { resolveUser } from './common/helpers/user-resolver.js'
 
 export async function createServer() {
   setupProxy()
@@ -92,6 +93,19 @@ export async function createServer() {
     }
     request.yar.set('lastActivity', now)
 
+    return h.continue
+  })
+
+  // Resolve user identity once per session for all authenticated routes.
+  // Guest mode: fetches and caches the profile from GET /users/me.
+  // SSO mode (future): session already has userId/token — returns cached user.
+  server.ext('onPreHandler', async (request, h) => {
+    if (isPublicPath(request.path)) return h.continue
+    try {
+      await resolveUser(request)
+    } catch (err) {
+      request.logger.error({ err }, 'Unexpected error resolving user identity')
+    }
     return h.continue
   })
 

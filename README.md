@@ -70,11 +70,12 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 
 ### Backend integration
 
-| Variable                | Default                        | Description                                                                   |
-| ----------------------- | ------------------------------ | ----------------------------------------------------------------------------- |
-| `BACKEND_API_URL`       | `http://localhost:8086/api/v1` | Backend service base URL                                                      |
-| `MOCK_DATA_RESULT`      | `false`                        | When `true`, falls back to local mock JSON **only if** the backend call fails |
-| `RESULT_API_TIMEOUT_MS` | `15000`                        | Timeout for result/document API requests (ms)                                 |
+| Variable                | Default                        | Description                                                                                             |
+| ----------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `BACKEND_API_URL`       | `http://localhost:8086/api/v1` | Backend service base URL                                                                                |
+| `MOCK_DATA_RESULT`      | `false`                        | When `true`, falls back to local mock JSON **only if** the backend call fails                           |
+| `RESULT_API_TIMEOUT_MS` | `15000`                        | Timeout for result/document API requests (ms)                                                           |
+| `GUEST_USER`            | `true`                         | When `true`, resolves user via `GET /users/me` on first request; set `false` when SSO provides the user |
 
 ### Polling
 
@@ -96,13 +97,12 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | ------------------------- | ------- | ------------------------------ |
 | `MAX_UPLOAD_FILE_SIZE_MB` | `50`    | Maximum upload file size in MB |
 
-### Development diagnostics
+### Logging
 
-| Variable          | Default                            | Description                                                                         |
-| ----------------- | ---------------------------------- | ----------------------------------------------------------------------------------- |
-| `DEV_SERVICE_LOG` | `false`                            | Log all backend service calls — URL, request body, response status and body         |
-| `LOG_LEVEL`       | `info`                             | Pino log level (`fatal` / `error` / `warn` / `info` / `debug` / `trace` / `silent`) |
-| `LOG_FORMAT`      | `pino-pretty` (dev) / `ecs` (prod) | Log output format                                                                   |
+| Variable     | Default                            | Description                                                                         |
+| ------------ | ---------------------------------- | ----------------------------------------------------------------------------------- |
+| `LOG_LEVEL`  | `info`                             | Pino log level (`fatal` / `error` / `warn` / `info` / `debug` / `trace` / `silent`) |
+| `LOG_FORMAT` | `pino-pretty` (dev) / `ecs` (prod) | Log output format                                                                   |
 
 ---
 
@@ -135,39 +135,37 @@ The frontend proxies all data through the Hapi server — the browser never call
 
 Setting `MOCK_DATA_RESULT=true` does **not** skip the API call. The app always attempts the backend first. Mock data (from `uploads.json` / `result.json`) is only used as a fallback when a backend call fails **and** `MOCK_DATA_RESULT=true`.
 
+### Guest user mode
+
+Controlled by the `GUEST_USER` environment variable (default `true`).
+
+**On the first authenticated request of each session:**
+
+1. `onPreHandler` calls `resolveUser(request)` in [src/server/common/helpers/user-resolver.js](src/server/common/helpers/user-resolver.js)
+2. `GET /api/v1/users/me` is called with the standard backend headers
+3. The returned `{ userId, email, name }` profile is cached in the Hapi session (`request.yar`)
+4. `userId` is also written to the session so all subsequent `buildBackendHeaders` calls use the confirmed identity
+
+**Subsequent requests in the same session** are served directly from the session cache — no additional backend call is made.
+
+**If the backend is unreachable** (non-OK response or network error), the app falls back to a hardcoded guest identity so it remains functional:
+
+```
+userId: 00000000-0000-0000-0000-000000000001
+email:  guest@aia.local
+name:   Guest User
+```
+
+**SSO migration path**: Set `GUEST_USER=false` when EntraID SSO is integrated. The SSO flow will write `userId`/token to the session before `resolveUser` runs, so the cached user is returned immediately with no API call.
+
+---
+
 ### Auth headers
 
 Every backend request carries:
 
 - `Authorization: Bearer <JWT>` — signed with `aia-documents-secret-key-for-jwt-32-chars`
-- `X-User-Id` — guest UUID `00000000-0000-0000-0000-000000000001` (or session user ID when SSO is active)
-
----
-
-## Development diagnostics
-
-### Logging all backend service calls
-
-Start the server with `DEV_SERVICE_LOG=true` to print a `WARN` pair for every backend call — one before the request (URL, method, request body) and one after (URL, status, response body):
-
-```bash
-DEV_SERVICE_LOG=true npm run dev
-```
-
-To cut through framework noise at the same time, raise the log level:
-
-```bash
-DEV_SERVICE_LOG=true LOG_LEVEL=warn npm run dev
-```
-
-Example output:
-
-```
-WARN {"url":"http://localhost:8086/api/v1/documents?page=1&limit=10","method":"GET"} Service request →
-WARN {"url":"http://localhost:8086/api/v1/documents?page=1&limit=10","status":200,"responseBody":{...}} Service response ←
-```
-
-The helper is in `src/server/common/helpers/service-logger.js`. When the flag is off it is a zero-overhead pass-through.
+- `X-User-Id` — resolved from session (populated by guest user mode) or `00000000-0000-0000-0000-000000000001` as default
 
 ---
 
@@ -215,17 +213,17 @@ Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults t
 
 ## Key files
 
-| File                                           | Purpose                                              |
-| ---------------------------------------------- | ---------------------------------------------------- |
-| `src/index.js`                                 | Application entry point                              |
-| `src/server/server.js`                         | Hapi server setup, plugin registration               |
-| `src/server/router.js`                         | Route module registration                            |
-| `src/config/config.js`                         | Convict config — all env vars, validated at startup  |
-| `src/server/home/controller.js`                | Upload history, pagination, upload proxy, poll proxy |
-| `src/server/result/controller.js`              | Result page — fetches from API, renders markdown     |
-| `src/server/common/helpers/backend-headers.js` | Builds `Authorization` and `X-User-Id` headers       |
-| `src/server/common/helpers/service-logger.js`  | `tracedFetch` — optional service call logger         |
-| `src/client/javascripts/status-poller.js`      | Client-side singleton polling module                 |
-| `src/client/javascripts/application.js`        | GOV.UK component init + polling bootstrap            |
-| `webpack.config.js`                            | Bundles client JS/SCSS, copies GOV.UK assets         |
-| `compose.yml`                                  | Docker Compose (app + Redis)                         |
+| File                                           | Purpose                                                     |
+| ---------------------------------------------- | ----------------------------------------------------------- |
+| `src/index.js`                                 | Application entry point                                     |
+| `src/server/server.js`                         | Hapi server setup, plugin registration                      |
+| `src/server/router.js`                         | Route module registration                                   |
+| `src/config/config.js`                         | Convict config — all env vars, validated at startup         |
+| `src/server/home/controller.js`                | Upload history, pagination, upload proxy, poll proxy        |
+| `src/server/result/controller.js`              | Result page — fetches from API, renders markdown            |
+| `src/server/common/helpers/backend-headers.js` | Builds `Authorization` and `X-User-Id` headers              |
+| `src/server/common/helpers/user-resolver.js`   | Resolves guest/SSO user once per session, caches in session |
+| `src/client/javascripts/status-poller.js`      | Client-side singleton polling module                        |
+| `src/client/javascripts/application.js`        | GOV.UK component init + polling bootstrap                   |
+| `webpack.config.js`                            | Bundles client JS/SCSS, copies GOV.UK assets                |
+| `compose.yml`                                  | Docker Compose (app + Redis)                                |

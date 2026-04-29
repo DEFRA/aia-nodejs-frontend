@@ -285,6 +285,12 @@ export const config = convict({
       default: 20,
       env: 'POLL_MAX_POLLS'
     }
+  },
+  guestUser: {
+    doc: 'Resolve the current user from GET /users/me on the first authenticated request and cache in session. Set false when SSO provides the user instead.',
+    format: Boolean,
+    default: true,
+    env: 'GUEST_USER'
   }
 })
 
