@@ -36,6 +36,14 @@ export const accessCodePostController = {
       })
     }
 
+    if (accessCode.length > 36) {
+      return h.view('access-code/index', {
+        pageTitle: 'Enter access code',
+        isAuthenticationRequired: false,
+        errorMessage: 'Access code must be 36 characters or fewer'
+      })
+    }
+
     if (isValidAccessCode(accessCode)) {
       request.yar.set('accessGranted', true)
       request.yar.set('lastActivity', Date.now())

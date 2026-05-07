@@ -57,6 +57,18 @@ describe('#accessCodePostController', () => {
     expect(result).toContain('Enter your access code')
   })
 
+  test('Should show error when access code exceeds 36 characters', async () => {
+    const { result, statusCode } = await server.inject({
+      method: 'POST',
+      url: '/',
+      headers: { 'content-type': 'application/x-www-form-urlencoded' },
+      payload: 'accessCode=' + 'a'.repeat(37)
+    })
+
+    expect(statusCode).toBe(statusCodes.ok)
+    expect(result).toContain('Access code must be 36 characters or fewer')
+  })
+
   test('Should show error when access code is whitespace only', async () => {
     const { result, statusCode } = await server.inject({
       method: 'POST',

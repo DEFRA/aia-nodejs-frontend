@@ -15,6 +15,7 @@ vi.mock('govuk-frontend', () => ({
   Button: class Button {},
   Checkboxes: class Checkboxes {},
   ErrorSummary: class ErrorSummary {},
+  PasswordInput: class PasswordInput {},
   Radios: class Radios {},
   SkipLink: class SkipLink {}
 }))
@@ -59,9 +60,9 @@ describe('application.js', () => {
 
     await import('./application.js')
 
-    // createAll should have been called 5 times (Button, Checkboxes,
-    // ErrorSummary, Radios, SkipLink)
-    expect(mockCreateAll).toHaveBeenCalledTimes(5)
+    // createAll should have been called 6 times (Button, Checkboxes,
+    // ErrorSummary, PasswordInput, Radios, SkipLink)
+    expect(mockCreateAll).toHaveBeenCalledTimes(6)
   })
 
   test('Should NOT call initUploadHandler when uploadForm is absent', async () => {
