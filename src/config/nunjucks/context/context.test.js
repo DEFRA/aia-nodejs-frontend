@@ -47,12 +47,17 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+<<<<<<< HEAD
           defaultNavigation: [],
+=======
+          currentPath: '/',
+>>>>>>> dd63fb9 (feat: add policy documents screens and navigation controls)
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
-          serviceUrl: '/home'
+          serviceUrl: '/home',
+          showPolicyDocuments: true
         })
       })
 
@@ -127,12 +132,17 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+<<<<<<< HEAD
           defaultNavigation: [],
+=======
+          currentPath: '/',
+>>>>>>> dd63fb9 (feat: add policy documents screens and navigation controls)
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
-          serviceUrl: '/home'
+          serviceUrl: '/home',
+          showPolicyDocuments: true
         })
       })
     })

@@ -54,12 +54,14 @@ export function context(request) {
 
   return {
     assetPath: `${assetPath}/assets`,
+    currentPath: request.path,
     serviceName: config.get('serviceName'),
     maxUploadFileSizeBytes: config.get('upload.maxFileSizeMb') * 1024 * 1024,
     serviceUrl: '/home',
     breadcrumbs: [],
     isAuthenticationRequired: isAuthRequired,
     defaultNavigation,
+    showPolicyDocuments: config.get('featureFlags.showPolicyDocuments'),
     getAssetPath(asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`

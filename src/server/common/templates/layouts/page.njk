@@ -26,7 +26,32 @@
       {{ govukServiceNavigation({
         serviceName: serviceName,
         serviceUrl: serviceUrl,
-        navigation: navigation if navigation else defaultNavigation
+        navigation: navigation if navigation and navigation.length else (
+          [
+            {
+              href: "/policy-documents",
+              text: "Policy Documents"
+            },
+            {
+              href: "/signout",
+              text: "Sign out"
+            }
+          ] if showPolicyDocuments and currentPath == "/home" and isAuthenticationRequired else (
+            [
+              {
+                href: "/policy-documents",
+                text: "Policy Documents"
+              }
+            ] if showPolicyDocuments and currentPath == "/home" else (
+            [
+              {
+                href: "/signout",
+                text: "Sign out"
+              }
+            ] if isAuthenticationRequired else []
+            )
+          )
+        )
       }) }}
     {% endblock %}
   </header>

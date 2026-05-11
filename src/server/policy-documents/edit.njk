@@ -1,0 +1,76 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+
+{% block pageTitle %}{{ pageTitle }}{% endblock %}
+
+{% block content %}
+<a href="/policy-documents" class="govuk-back-link">Back to PolicyDocuments</a>
+
+<h1 class="govuk-heading-l">{{ heading }}</h1>
+
+{% if saveMessage %}
+<div class="govuk-notification-banner" role="region" aria-labelledby="review-mode-title" data-module="govuk-notification-banner">
+  <div class="govuk-notification-banner__header">
+    <h2 class="govuk-notification-banner__title" id="review-mode-title">Status</h2>
+  </div>
+  <div class="govuk-notification-banner__content">
+    <p class="govuk-notification-banner__heading">{{ saveMessage }}</p>
+  </div>
+</div>
+{% endif %}
+
+{% if notFound %}
+  <p class="govuk-body">The selected policy document could not be found.</p>
+{% elif document %}
+  <form method="post" action="/policy-documents/edit" novalidate>
+    <input type="hidden" name="documentId" value="{{ document.documentId }}">
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="title">Title/FileName</label>
+      <input class="govuk-input" id="title" name="title" type="text" value="{{ document.title }}">
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="sourceUrl">URL</label>
+      <input class="govuk-input" id="sourceUrl" name="sourceUrl" type="url" value="{{ document.sourceUrl }}">
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="category">Category</label>
+      <select class="govuk-select" id="category" name="category">
+        {% for option in categoryOptions %}
+          <option value="{{ option }}" {% if document.category == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="govuk-form-group">
+      <label class="govuk-label" for="type">Source</label>
+      <select class="govuk-select" id="type" name="type">
+        {% for option in typeOptions %}
+          <option value="{{ option }}" {% if document.type == option %}selected{% endif %}>{{ option }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset" aria-describedby="is-active-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Is Active</legend>
+        <div id="is-active-hint" class="govuk-hint">Select if this policy document is active.</div>
+        <div class="govuk-radios" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="isActive-yes" name="isActive" type="radio" value="true" {% if document.isActive %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="isActive-yes">Yes</label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="isActive-no" name="isActive" type="radio" value="false" {% if not document.isActive %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="isActive-no">No</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    {{ govukButton({ text: "Save Changes" }) }}
+  </form>
+{% endif %}
+{% endblock %}

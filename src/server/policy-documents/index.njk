@@ -1,0 +1,65 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+
+{% block pageTitle %}{{ pageTitle }}{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">{{ heading }}</h1>
+
+{% if policyDocuments and policyDocuments.length %}
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header">Title/FileName</th>
+        <th class="govuk-table__header">Category</th>
+        <th class="govuk-table__header">Source</th>
+        <th class="govuk-table__header">Active</th>
+        <th class="govuk-table__header">Last Updated</th>
+        <th class="govuk-table__header">Action</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for document in policyDocuments %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+          {% if document.sourceUrl %}
+            <a class="govuk-link" href="{{ document.sourceUrl }}" target="_blank" rel="noopener noreferrer">{{ document.title }}</a>
+          {% else %}
+            {{ document.title }}
+          {% endif %}
+        </td>
+        <td class="govuk-table__cell">{{ document.category }}</td>
+        <td class="govuk-table__cell">{{ document.type }}</td>
+        <td class="govuk-table__cell">{{ 'Yes' if document.isActive else 'No' }}</td>
+        <td class="govuk-table__cell">{{ document.updatedAt | toUkDateTime if document.updatedAt else 'N/A' }}</td>
+        <td class="govuk-table__cell">
+          <a class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0" data-module="govuk-button" href="{{ document.editHref }}">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if pagination.summary or pagination.items or pagination.previous or pagination.next %}
+  <div class="app-pagination-row app-pagination-row--{{ paginationAlignment | default('left') }} govuk-!-margin-top-6">
+    {% if pagination.items or pagination.previous or pagination.next %}
+    <div class="app-pagination-row__nav">
+      {{ govukPagination({
+        items: pagination.items,
+        previous: pagination.previous,
+        next: pagination.next,
+        landmarkLabel: 'Pagination'
+      }) }}
+    </div>
+    {% endif %}
+
+    {% if pagination.summary %}
+    <p class="govuk-body app-pagination-row__summary" data-testid="pagination-summary">Showing <strong>{{ pagination.summary.startItem }}</strong> to <strong>{{ pagination.summary.endItem }}</strong> of <strong>{{ pagination.summary.totalItems }}</strong> policy documents</p>
+    {% endif %}
+  </div>
+  {% endif %}
+{% else %}
+  <p class="govuk-body">No policy documents available.</p>
+{% endif %}
+
+{% endblock %}
