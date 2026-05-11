@@ -1,0 +1,127 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+
+{% block pageTitle %}{{ pageTitle }}{% endblock %}
+
+{% block content %}
+
+<h1 class="govuk-heading-l">Cost usage</h1>
+
+<div class="govuk-warning-text">
+  <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
+  <strong class="govuk-warning-text__text">
+    <span class="govuk-visually-hidden">Warning</span>
+    AI‑generated cost data may be inaccurate or incomplete.
+Check the cost data carefully before using it to make decisions.
+  </strong>
+</div>
+
+{# ── Summary stats ── #}
+{% if summary %}
+<div class="cost-summary govuk-!-margin-bottom-8">
+
+  <div class="cost-summary__card">
+    <span class="cost-summary__label govuk-body-s">Total cost</span>
+    <span class="cost-summary__value govuk-heading-l govuk-!-margin-bottom-0">${{ summary.totalCost | round(2) }}</span>
+    <span class="cost-summary__meta govuk-body-s">{{ summary.currency }}</span>
+  </div>
+
+  <div class="cost-summary__card">
+    <span class="cost-summary__label govuk-body-s">Documents analysed</span>
+    <span class="cost-summary__value govuk-heading-l govuk-!-margin-bottom-0">{{ summary.totalDocuments }}</span>
+    <span class="cost-summary__meta govuk-body-s">Total documents</span>
+  </div>
+
+  <div class="cost-summary__card">
+    <span class="cost-summary__label govuk-body-s">Total tokens</span>
+    <span class="cost-summary__value govuk-heading-l govuk-!-margin-bottom-0">{{ summary.totalTokens | formatNumber }}</span>
+    <span class="cost-summary__meta govuk-body-s">
+      {{ summary.totalInputTokens | formatNumber }} input tokens<br>
+      {{ summary.totalOutputTokens | formatNumber }} output tokens
+    </span>
+  </div>
+
+</div>
+{% endif %}
+
+{# ── Cost breakdown table ── #}
+{% if costUsage and costUsage.length %}
+
+<div class="govuk-form-group">
+
+  <table class="govuk-table cost-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header cost-table__col-doc">Document</th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric cost-table__col-cost">Cost ({{ costUsage[0].currency }})</th>
+        <th scope="col" class="govuk-table__header cost-table__col-agent">Agent</th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric">Input Tokens</th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric">Output Tokens</th>
+        <th scope="col" class="govuk-table__header govuk-table__header--numeric">Total Tokens</th>
+      </tr>
+    </thead>
+
+    <tbody class="govuk-table__body">
+      {% for doc in costUsage %}
+
+        {# Document header row #}
+        <tr class="govuk-table__row cost-table__doc-row">
+          <td class="govuk-table__cell cost-table__doc-name">
+            <strong>{{ doc.file_name }}</strong>
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric cost-table__doc-cost">
+            <strong>${{ doc.totalCost | round(2) }}</strong>
+          </td>
+          <td class="govuk-table__cell"></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"><strong>{{ doc.totalInputTokens | formatNumber }}</strong></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"><strong>{{ doc.totalOutputTokens | formatNumber }}</strong></td>
+          <td class="govuk-table__cell govuk-table__cell--numeric"><strong>{{ doc.totalDocTokens | formatNumber }}</strong></td>
+        </tr>
+
+        {# Per-agent detail rows #}
+        {% for agent in doc.agents %}
+        <tr class="govuk-table__row cost-table__agent-row{% if loop.last %} cost-table__agent-row--last{% endif %}">
+          <td class="govuk-table__cell cost-table__agent-indent"></td>
+          <td class="govuk-table__cell"></td>
+          <td class="govuk-table__cell">
+            {{ agent.name }}
+          </td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ agent.inputTokens | formatNumber }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ agent.outputTokens | formatNumber }}</td>
+          <td class="govuk-table__cell govuk-table__cell--numeric">{{ agent.totalTokens | formatNumber }}</td>
+        </tr>
+        {% endfor %}
+
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {# Pagination row with nav and summary — mirrors Upload History layout #}
+  {% if pagination.summary or pagination.items or pagination.previous or pagination.next %}
+  <div class="app-pagination-row app-pagination-row--{{ paginationAlignment | default('left') }} govuk-!-margin-top-6">
+
+    {% if pagination.items or pagination.previous or pagination.next %}
+    <div class="app-pagination-row__nav">
+      {{ govukPagination({
+        items: pagination.items,
+        previous: pagination.previous,
+        next: pagination.next,
+        landmarkLabel: 'Pagination'
+      }) }}
+    </div>
+    {% endif %}
+
+    {% if pagination.summary %}
+    <p class="govuk-body app-pagination-row__summary" data-testid="pagination-summary">Showing <strong>{{ pagination.summary.startItem }}</strong> to <strong>{{ pagination.summary.endItem }}</strong> of <strong>{{ pagination.summary.totalItems }}</strong> documents</p>
+    {% endif %}
+
+  </div>
+  {% endif %}
+
+</div>
+
+{% else %}
+<p class="govuk-body govuk-!-colour-secondary">No cost usage data is available.</p>
+{% endif %}
+
+{% endblock %}

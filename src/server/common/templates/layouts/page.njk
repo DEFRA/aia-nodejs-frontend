@@ -26,14 +26,7 @@
       {{ govukServiceNavigation({
         serviceName: serviceName,
         serviceUrl: serviceUrl,
-        navigation: navigation if navigation else (
-          [
-            {
-              href: "/signout",
-              text: "Sign out"
-            }
-          ] if isAuthenticationRequired else []
-        )
+        navigation: navigation if navigation else defaultNavigation
       }) }}
     {% endblock %}
   </header>

@@ -310,6 +310,20 @@ export const config = convict({
     format: Boolean,
     default: true,
     env: 'GUEST_USER'
+  },
+  features: {
+    showCostUsage: {
+      doc: 'Show the Cost Usage link in the main navigation',
+      format: Boolean,
+      default: false,
+      env: 'FEATURE_SHOW_COST_USAGE'
+    },
+    showPolicyDocuments: {
+      doc: 'Show the Policy Documents link in the main navigation',
+      format: Boolean,
+      default: false,
+      env: 'FEATURE_SHOW_POLICY_DOCUMENTS'
+    }
   }
 })
 

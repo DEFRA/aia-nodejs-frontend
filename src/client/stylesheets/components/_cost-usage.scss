@@ -1,0 +1,88 @@
+// Cost usage page — summary cards and grouped cost table
+
+// ── Summary stat cards ─────────────────────────────────────────────────────
+
+.cost-summary {
+  display: flex;
+  gap: 20px;
+  flex-wrap: nowrap;
+}
+
+.cost-summary__card {
+  flex: 1 1 0;
+  padding: 20px;
+  border-top: 5px solid #1d70b8;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cost-summary__label {
+  color: #626a6e;
+}
+
+.cost-summary__value {
+  line-height: 1.1;
+  color: #0b0c0c;
+}
+
+.cost-summary__meta {
+  color: #626a6e;
+}
+
+// ── Cost breakdown table ───────────────────────────────────────────────────
+
+.cost-table__col-doc {
+  width: 28%;
+}
+
+.cost-table__col-agent {
+  width: 14%;
+}
+
+.cost-table__col-cost {
+  white-space: nowrap;
+}
+
+// Document header rows — GOV.UK light grey groups agents visually
+.cost-table__doc-row {
+  background-color: #f3f2f1;
+
+  .govuk-table__cell {
+    border-bottom: none;
+    padding-top: 14px;
+    padding-bottom: 6px;
+  }
+}
+
+.cost-table__doc-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cost-table__doc-cost {
+  color: #0b0c0c;
+}
+
+// Agent detail rows
+.cost-table__agent-row {
+  .govuk-table__cell {
+    border-bottom: 1px solid #f3f2f1;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+}
+
+// Restore standard GOV.UK border after the last agent in each group
+.cost-table__agent-row--last .govuk-table__cell {
+  border-bottom: 1px solid #b1b4b6;
+  padding-bottom: 14px;
+}
+
+.cost-table__agent-indent {
+  width: 20px;
+  padding-right: 0;
+}
+
