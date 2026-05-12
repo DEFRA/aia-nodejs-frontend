@@ -47,11 +47,8 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
-<<<<<<< HEAD
-          defaultNavigation: [],
-=======
           currentPath: '/',
->>>>>>> dd63fb9 (feat: add policy documents screens and navigation controls)
+          defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
@@ -132,11 +129,8 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
-<<<<<<< HEAD
-          defaultNavigation: [],
-=======
           currentPath: '/',
->>>>>>> dd63fb9 (feat: add policy documents screens and navigation controls)
+          defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
