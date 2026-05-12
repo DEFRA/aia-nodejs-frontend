@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { config } from '../config.js'
 import { context } from './context/context.js'
 import { toUkDateTime } from './filters/to-uk-date-time.js'
+import { formatNumber } from './filters/format-number.js'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 const nunjucksEnvironment = nunjucks.configure(
@@ -25,6 +26,7 @@ const nunjucksEnvironment = nunjucks.configure(
 )
 
 nunjucksEnvironment.addFilter('toUkDateTime', toUkDateTime)
+nunjucksEnvironment.addFilter('formatNumber', formatNumber)
 
 export const nunjucksConfig = {
   plugin: hapiVision,

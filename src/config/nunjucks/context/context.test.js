@@ -47,6 +47,7 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+          defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
@@ -126,6 +127,7 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+          defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,

@@ -1,0 +1,118 @@
+{
+  "costUsage": [
+    {
+      "doc_id": "ede592e1-59b3-4905-ae15-f28a63454a87",
+      "file_name": "Risk_Register_2026_Q2.docx",
+      "uploadedAt": "2026-05-04T11:45:00Z",
+      "agents": [
+        {
+          "name": "Architecture",
+          "inputTokens": 6800,
+          "outputTokens": 4500
+        },
+        {
+          "name": "Governance",
+          "inputTokens": 4900,
+          "outputTokens": 3200
+        },
+        {
+          "name": "Security",
+          "inputTokens": 10400,
+          "outputTokens": 7100
+        }
+      ],
+      "totalCost": 0.2883,
+      "currency": "USD"
+    },
+    {
+      "doc_id": "60117693-77af-4c2e-9cac-548036519a72",
+      "file_name": "Compliance_Assessment_2026.docx",
+      "uploadedAt": "2026-05-03T09:00:00Z",
+      "agents": [
+        {
+          "name": "Architecture",
+          "inputTokens": 8800,
+          "outputTokens": 6100
+        },
+        {
+          "name": "Governance",
+          "inputTokens": 5200,
+          "outputTokens": 3800
+        },
+        {
+          "name": "Security",
+          "inputTokens": 15000,
+          "outputTokens": 11000
+        },
+        {
+          "name": "Technology",
+          "inputTokens": 6500,
+          "outputTokens": 4200
+        }
+      ],
+      "totalCost": 0.483,
+      "currency": "USD"
+    },
+    {
+      "doc_id": "68312635-f83a-4149-898f-ed8f686b7b06",
+      "file_name": "Solution_Design_Document_v2.docx",
+      "uploadedAt": "2026-05-02T14:15:00Z",
+      "agents": [
+        {
+          "name": "Security",
+          "inputTokens": 8900,
+          "outputTokens": 5600
+        },
+        {
+          "name": "Technology",
+          "inputTokens": 7200,
+          "outputTokens": 4800
+        }
+      ],
+      "totalCost": 0.2043,
+      "currency": "USD"
+    },
+    {
+      "doc_id": "218b5e53-20a4-4967-a1d9-c0f0532261f6",
+      "file_name": "Architecture_Review_Q1_2026.docx",
+      "uploadedAt": "2026-05-01T10:30:00Z",
+      "agents": [
+        {
+          "name": "Architecture",
+          "inputTokens": 11200,
+          "outputTokens": 7800
+        },
+        {
+          "name": "Security",
+          "inputTokens": 12500,
+          "outputTokens": 8200
+        },
+        {
+          "name": "Technology",
+          "inputTokens": 9800,
+          "outputTokens": 6400
+        }
+      ],
+      "totalCost": 0.4365,
+      "currency": "USD"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 10,
+    "total": 4,
+    "totalPages": 1,
+    "hasNext": false,
+    "hasPrevious": false,
+    "nextPage": null,
+    "previousPage": null
+  },
+  "summary": {
+    "totalCost": 1.4121,
+    "currency": "USD",
+    "totalDocuments": 4,
+    "totalInputTokens": 107200,
+    "totalOutputTokens": 72700,
+    "totalTokens": 179900
+  }
+}

@@ -13,6 +13,21 @@ const manifestPath = path.join(
 
 let webpackManifest
 
+const isAuthRequired = config.get('isAuthenticationRequired')
+
+const primaryNavLinks = [
+  {
+    href: '/cost',
+    text: 'Cost Usage',
+    enabled: config.get('features.showCostUsage')
+  },
+  {
+    href: '/documents',
+    text: 'Policy Documents',
+    enabled: config.get('features.showPolicyDocuments')
+  }
+]
+
 export function context(request) {
   if (!webpackManifest) {
     try {
@@ -22,13 +37,29 @@ export function context(request) {
     }
   }
 
+  const currentPath = request?.path ?? ''
+  const isUnauthPage = currentPath === '/' || currentPath === '/signout'
+
+  const defaultNavigation = isUnauthPage
+    ? []
+    : [
+        ...primaryNavLinks
+          .filter((item) => item.enabled)
+          .map(({ enabled: _, ...item }) => ({
+            ...item,
+            active: currentPath === item.href
+          })),
+        ...(isAuthRequired ? [{ href: '/signout', text: 'Sign out' }] : [])
+      ]
+
   return {
     assetPath: `${assetPath}/assets`,
     serviceName: config.get('serviceName'),
     maxUploadFileSizeBytes: config.get('upload.maxFileSizeMb') * 1024 * 1024,
     serviceUrl: '/home',
     breadcrumbs: [],
-    isAuthenticationRequired: config.get('isAuthenticationRequired'),
+    isAuthenticationRequired: isAuthRequired,
+    defaultNavigation,
     getAssetPath(asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`
