@@ -89,6 +89,18 @@ export const config = convict({
       env: 'ITEMS_PER_PAGE'
     }
   },
+  policyDocuments: {
+    categoryOptions: {
+      doc: 'Category options for the policy document edit form',
+      format: Array,
+      default: ['Security', 'Technology']
+    },
+    typeOptions: {
+      doc: 'Source options for the policy document edit form',
+      format: Array,
+      default: ['SharePoint', 'Confluence', 'GitHub']
+    }
+  },
   result: {
     mockData: {
       doc: 'Use local mock result files instead of invoking the backend documents API',
@@ -269,26 +281,26 @@ export const config = convict({
   backendApiUrl: {
     doc: 'Backend service base URL',
     format: String,
-    default: 'http://localhost:8086/api/v1',
+    default: 'http://127.0.0.1:8086/api/v1',
     env: 'BACKEND_API_URL'
   },
   jwtSecret: {
     doc: 'Secret used to sign backend JWT tokens — must match the backend JWT_SECRET',
     format: String,
-    default: 'your-secret-key-at-least-32-chars',
+    default: 'e710eba272b04c2baf5054193a90bed251cf93318b289370c9438617c0b91e1c',
     env: 'JWT_SECRET',
     sensitive: true
   },
   generateLog: {
     doc: 'Master switch — when false, fetchWithLog emits no debug logs and writes no log file',
     format: Boolean,
-    default: false,
+    default: true,
     env: 'GENERATE_LOG'
   },
   generateLogFile: {
     doc: 'When true (and GENERATE_LOG is also true), backend API calls are appended to backend-api.log',
     format: Boolean,
-    default: false,
+    default: true,
     env: 'GENERATE_LOG_FILE'
   },
   polling: {
@@ -315,13 +327,13 @@ export const config = convict({
     showCostUsage: {
       doc: 'Show the Cost Usage link in the main navigation',
       format: Boolean,
-      default: false,
+      default: true,
       env: 'FEATURE_SHOW_COST_USAGE'
     },
     showPolicyDocuments: {
       doc: 'Show the Policy Documents link in the main navigation',
       format: Boolean,
-      default: false,
+      default: true,
       env: 'FEATURE_SHOW_POLICY_DOCUMENTS'
     }
   }

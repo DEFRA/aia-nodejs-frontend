@@ -168,7 +168,7 @@ The frontend proxies all data through the Hapi server — the browser never call
   ],
   "pagination": { "total": 42 },
   "summary": {
-    "totalCost": 12.50,
+    "totalCost": 12.5,
     "currency": "USD",
     "totalDocuments": 42,
     "totalInputTokens": 107200,
@@ -261,22 +261,22 @@ Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults t
 
 ## Key files
 
-| File                                           | Purpose                                                     |
-| ---------------------------------------------- | ----------------------------------------------------------- |
-| `src/index.js`                                 | Application entry point                                     |
-| `src/server/server.js`                         | Hapi server setup, plugin registration                      |
-| `src/server/router.js`                         | Route module registration                                   |
-| `src/config/config.js`                         | Convict config — all env vars, validated at startup         |
-| `src/server/home/controller.js`                      | Upload history, pagination, upload proxy, poll proxy          |
-| `src/server/result/controller.js`                    | Result page — fetches from API, renders markdown              |
+| File                                                 | Purpose                                                            |
+| ---------------------------------------------------- | ------------------------------------------------------------------ |
+| `src/index.js`                                       | Application entry point                                            |
+| `src/server/server.js`                               | Hapi server setup, plugin registration                             |
+| `src/server/router.js`                               | Route module registration                                          |
+| `src/config/config.js`                               | Convict config — all env vars, validated at startup                |
+| `src/server/home/controller.js`                      | Upload history, pagination, upload proxy, poll proxy               |
+| `src/server/result/controller.js`                    | Result page — fetches from API, renders markdown                   |
 | `src/server/cost/controller.js`                      | Cost usage page — fetches from API, enriches agent data, paginates |
-| `src/server/cost/index.njk`                          | Cost usage template — summary cards, grouped table, pagination |
-| `src/server/cost/cost-usage.json`                    | Local fallback data used when the cost API is unavailable     |
-| `src/client/stylesheets/components/_cost-usage.scss` | SCSS for summary cards and cost breakdown table               |
-| `src/config/nunjucks/filters/format-number.js`       | Nunjucks filter — formats numbers with thousands separators   |
-| `src/server/common/helpers/backend-headers.js`       | Builds `Authorization` and `X-User-Id` headers                |
-| `src/server/common/helpers/user-resolver.js`         | Resolves guest/SSO user once per session, caches in session   |
-| `src/client/javascripts/status-poller.js`            | Client-side singleton polling module                          |
-| `src/client/javascripts/application.js`              | GOV.UK component init + polling bootstrap                     |
-| `webpack.config.js`                                  | Bundles client JS/SCSS, copies GOV.UK assets                  |
-| `compose.yml`                                        | Docker Compose (app + Redis)                                  |
+| `src/server/cost/index.njk`                          | Cost usage template — summary cards, grouped table, pagination     |
+| `src/server/cost/cost-usage.json`                    | Local fallback data used when the cost API is unavailable          |
+| `src/client/stylesheets/components/_cost-usage.scss` | SCSS for summary cards and cost breakdown table                    |
+| `src/config/nunjucks/filters/format-number.js`       | Nunjucks filter — formats numbers with thousands separators        |
+| `src/server/common/helpers/backend-headers.js`       | Builds `Authorization` and `X-User-Id` headers                     |
+| `src/server/common/helpers/user-resolver.js`         | Resolves guest/SSO user once per session, caches in session        |
+| `src/client/javascripts/status-poller.js`            | Client-side singleton polling module                               |
+| `src/client/javascripts/application.js`              | GOV.UK component init + polling bootstrap                          |
+| `webpack.config.js`                                  | Bundles client JS/SCSS, copies GOV.UK assets                       |
+| `compose.yml`                                        | Docker Compose (app + Redis)                                       |

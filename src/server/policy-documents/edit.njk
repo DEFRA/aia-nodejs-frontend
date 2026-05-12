@@ -1,0 +1,112 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/button/macro.njk" import govukButton %}
+{% from "govuk/components/error-summary/macro.njk" import govukErrorSummary %}
+
+{% block pageTitle %}{% if errorList and errorList.length %}Error: {% endif %}{{ pageTitle | escape }}{% endblock %}
+
+{% block content %}
+<a href="/policy-documents" class="govuk-back-link">Back to PolicyDocuments</a>
+
+<h1 class="govuk-heading-l">{{ heading | escape }}</h1>
+
+{% if saveMessage %}
+<div class="govuk-notification-banner{% if saveSuccess %} govuk-notification-banner--success{% endif %}" role="{% if saveSuccess %}alert{% else %}region{% endif %}" aria-labelledby="banner-title" data-module="govuk-notification-banner">
+  <div class="govuk-notification-banner__header">
+    <h2 class="govuk-notification-banner__title" id="banner-title">{% if saveSuccess %}Success{% else %}Important{% endif %}</h2>
+  </div>
+  <div class="govuk-notification-banner__content">
+    <p class="govuk-notification-banner__heading">{{ saveMessage | escape }}</p>
+  </div>
+</div>
+{% endif %}
+
+{% if errorList and errorList.length %}
+{{ govukErrorSummary({
+  titleText: "There is a problem",
+  errorList: errorList
+}) }}
+{% endif %}
+
+{% if notFound %}
+  <p class="govuk-body">The selected policy document could not be found.</p>
+{% elif document is not undefined %}
+  <form method="post" action="{{ '/policy-documents/new' if isNew else '/policy-documents/edit' }}" novalidate>
+    {% if not isNew %}
+    <input type="hidden" name="documentId" value="{{ document.documentId | escape }}">
+    {% endif %}
+
+    <div class="govuk-form-group{% if errors.title %} govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="title">Title/FileName</label>
+      {% if errors.title %}
+        <p id="title-error" class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span> {{ errors.title | escape }}</p>
+      {% endif %}
+      <input class="govuk-input{% if errors.title %} govuk-input--error{% endif %}" id="title" name="title" type="text"
+        value="{{ document.title | escape }}"
+        maxlength="500"
+        aria-required="true"
+        {% if errors.title %}aria-describedby="title-error"{% endif %}>
+    </div>
+
+    <div class="govuk-form-group{% if errors.sourceUrl %} govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="sourceUrl">URL</label>
+      {% if errors.sourceUrl %}
+        <p id="sourceUrl-error" class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span> {{ errors.sourceUrl | escape }}</p>
+      {% endif %}
+      <input class="govuk-input{% if errors.sourceUrl %} govuk-input--error{% endif %}" id="sourceUrl" name="sourceUrl" type="url"
+        value="{{ document.sourceUrl | escape }}"
+        maxlength="4000"
+        aria-required="true"
+        {% if errors.sourceUrl %}aria-describedby="sourceUrl-error"{% endif %}>
+    </div>
+
+    <div class="govuk-form-group{% if errors.category %} govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="category">Category</label>
+      {% if errors.category %}
+        <p id="category-error" class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span> {{ errors.category | escape }}</p>
+      {% endif %}
+      <select class="govuk-select{% if errors.category %} govuk-select--error{% endif %}" id="category" name="category"
+        aria-required="true"
+        {% if errors.category %}aria-describedby="category-error"{% endif %}>
+        {% if isNew %}<option value="">Select a category</option>{% endif %}
+        {% for option in categoryOptions %}
+          <option value="{{ option | escape }}"{% if document.category == option %} selected{% endif %}>{{ option | escape }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="govuk-form-group{% if errors.type %} govuk-form-group--error{% endif %}">
+      <label class="govuk-label" for="type">Source</label>
+      {% if errors.type %}
+        <p id="type-error" class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span> {{ errors.type | escape }}</p>
+      {% endif %}
+      <select class="govuk-select{% if errors.type %} govuk-select--error{% endif %}" id="type" name="type"
+        aria-required="true"
+        {% if errors.type %}aria-describedby="type-error"{% endif %}>
+        {% if isNew %}<option value="">Select a source</option>{% endif %}
+        {% for option in typeOptions %}
+          <option value="{{ option | escape }}"{% if document.type == option %} selected{% endif %}>{{ option | escape }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="govuk-form-group">
+      <fieldset class="govuk-fieldset" aria-describedby="is-active-hint">
+        <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Is Active</legend>
+        <div id="is-active-hint" class="govuk-hint">Select if this policy document is active.</div>
+        <div class="govuk-radios" data-module="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="isActive-yes" name="isActive" type="radio" value="true" {% if document.isActive %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="isActive-yes">Yes</label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="isActive-no" name="isActive" type="radio" value="false" {% if not document.isActive %}checked{% endif %}>
+            <label class="govuk-label govuk-radios__label" for="isActive-no">No</label>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+
+    {{ govukButton({ text: "Create Document" if isNew else "Save Changes" }) }}
+  </form>
+{% endif %}
+{% endblock %}

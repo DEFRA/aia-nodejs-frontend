@@ -47,12 +47,15 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+          currentPath: '/',
           defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
-          serviceUrl: '/home'
+          serviceUrl: '/home',
+          showCostUsage: true,
+          showPolicyDocuments: true
         })
       })
 
@@ -127,12 +130,15 @@ describe('context and cache', () => {
         expect(contextResult).toEqual({
           assetPath: '/public/assets',
           breadcrumbs: [],
+          currentPath: '/',
           defaultNavigation: [],
           getAssetPath: expect.any(Function),
           isAuthenticationRequired: false,
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
-          serviceUrl: '/home'
+          serviceUrl: '/home',
+          showCostUsage: true,
+          showPolicyDocuments: true
         })
       })
     })

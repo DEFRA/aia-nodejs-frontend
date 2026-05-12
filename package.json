@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build:frontend": "cross-env NODE_ENV=production webpack",
-    "dev": "run-p frontend:watch server:watch",
+    "dev": "sh -c '(lsof -ti tcp:3000 | xargs kill) 2>/dev/null || true; run-p frontend:watch server:watch'",
     "dev:debug": "AWS_EMF_ENVIRONMENT=Local run-p frontend:watch server:debug",
     "docker:dev": "npm run dev",
     "format": "prettier --write \"src/**/*.js\" \"**/*.{js,cjs,md,json,config.js,test.js}\"",

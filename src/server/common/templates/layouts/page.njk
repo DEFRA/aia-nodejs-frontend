@@ -26,7 +26,7 @@
       {{ govukServiceNavigation({
         serviceName: serviceName,
         serviceUrl: serviceUrl,
-        navigation: navigation if navigation else defaultNavigation
+        navigation: navigation if navigation and navigation.length else defaultNavigation
       }) }}
     {% endblock %}
   </header>

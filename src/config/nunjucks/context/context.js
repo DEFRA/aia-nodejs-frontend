@@ -22,7 +22,7 @@ const primaryNavLinks = [
     enabled: config.get('features.showCostUsage')
   },
   {
-    href: '/documents',
+    href: '/policy-documents',
     text: 'Policy Documents',
     enabled: config.get('features.showPolicyDocuments')
   }
@@ -54,12 +54,15 @@ export function context(request) {
 
   return {
     assetPath: `${assetPath}/assets`,
+    currentPath: request.path,
     serviceName: config.get('serviceName'),
     maxUploadFileSizeBytes: config.get('upload.maxFileSizeMb') * 1024 * 1024,
     serviceUrl: '/home',
     breadcrumbs: [],
     isAuthenticationRequired: isAuthRequired,
     defaultNavigation,
+    showCostUsage: config.get('features.showCostUsage'),
+    showPolicyDocuments: config.get('features.showPolicyDocuments'),
     getAssetPath(asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`

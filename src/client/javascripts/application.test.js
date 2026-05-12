@@ -53,6 +53,7 @@ describe('application.js', () => {
     // Mock window.location.reload
     delete window.location
     window.location = { reload: vi.fn() }
+    window.confirm = vi.fn(() => true)
   })
 
   test('Should call createAll for each govuk-frontend component', async () => {
@@ -191,5 +192,63 @@ describe('application.js', () => {
 
     const notice = document.getElementById('pollingTimeoutNotice')
     expect(notice.hasAttribute('hidden')).toBe(false)
+  })
+
+  test('Should prevent delete form submit when user cancels confirmation', async () => {
+    document.body.innerHTML = `
+      <form id="deleteForm" data-confirm-delete data-confirm-message="Confirm delete?">
+        <button type="submit">Delete</button>
+      </form>
+    `
+
+    window.confirm = vi.fn(() => false)
+
+    await import('./application.js')
+
+    const form = document.getElementById('deleteForm')
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+    form.dispatchEvent(submitEvent)
+
+    expect(window.confirm).toHaveBeenCalledWith('Confirm delete?')
+    expect(submitEvent.defaultPrevented).toBe(true)
+  })
+
+  test('Should allow delete form submit when user confirms', async () => {
+    document.body.innerHTML = `
+      <form id="deleteForm" data-confirm-delete data-confirm-message="Confirm delete?">
+        <button type="submit">Delete</button>
+      </form>
+    `
+
+    window.confirm = vi.fn(() => true)
+
+    await import('./application.js')
+
+    const form = document.getElementById('deleteForm')
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+    form.dispatchEvent(submitEvent)
+
+    expect(window.confirm).toHaveBeenCalledWith('Confirm delete?')
+    expect(submitEvent.defaultPrevented).toBe(false)
+  })
+
+  test('Should confirm delete for form added after app initialization', async () => {
+    document.body.innerHTML = ''
+    window.confirm = vi.fn(() => false)
+
+    await import('./application.js')
+
+    document.body.innerHTML = `
+      <form id="lateDeleteForm" data-confirm-delete data-confirm-message="Confirm late delete?">
+        <button type="submit">Delete</button>
+      </form>
+    `
+
+    const form = document.getElementById('lateDeleteForm')
+    const submitEvent = new Event('submit', { bubbles: true, cancelable: true })
+    form.dispatchEvent(submitEvent)
+
+    expect(window.confirm).toHaveBeenCalledWith('Confirm late delete?')
+    expect(submitEvent.defaultPrevented).toBe(true)
   })
 })

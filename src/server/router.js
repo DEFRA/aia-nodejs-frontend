@@ -7,6 +7,7 @@ import { signout } from './signout/index.js'
 import { notAuthorized } from './not-authorized/index.js'
 import { accessCode } from './access-code/index.js'
 import { cost } from './cost/index.js'
+import { policyDocuments } from './policy-documents/index.js'
 import { serveStaticFiles } from './common/helpers/serve-static-files.js'
 
 export const router = {
@@ -25,7 +26,8 @@ export const router = {
         signout,
         notAuthorized,
         accessCode,
-        cost
+        cost,
+        policyDocuments
       ])
 
       // Static assets

@@ -1,0 +1,74 @@
+{% extends 'layouts/page.njk' %}
+{% from "govuk/components/pagination/macro.njk" import govukPagination %}
+
+{% block pageTitle %}{{ pageTitle | escape }}{% endblock %}
+
+{% block content %}
+<h1 class="govuk-heading-l">{{ heading | escape }}</h1>
+
+
+<div class="govuk-!-margin-bottom-4">
+  <a href="/policy-documents/new" class="govuk-button" data-module="govuk-button">Add New Document</a>
+</div>
+
+{% if policyDocuments and policyDocuments.length %}
+  <table class="govuk-table">
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th class="govuk-table__header">Title/FileName</th>
+        <th class="govuk-table__header">Category</th>
+        <th class="govuk-table__header">Source</th>
+        <th class="govuk-table__header">Active</th>
+        <th class="govuk-table__header">Last Updated</th>
+        <th class="govuk-table__header">Action</th>
+      </tr>
+    </thead>
+    <tbody class="govuk-table__body">
+      {% for document in policyDocuments %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+          {% if document.sourceUrl %}
+            <a class="govuk-link" href="{{ document.sourceUrl | escape }}" target="_blank" rel="noopener noreferrer">{{ document.title | escape }}</a>
+          {% else %}
+            {{ document.title | escape }}
+          {% endif %}
+        </td>
+        <td class="govuk-table__cell">{{ document.category | escape }}</td>
+        <td class="govuk-table__cell">{{ document.type | escape }}</td>
+        <td class="govuk-table__cell">{{ 'Yes' if document.isActive else 'No' }}</td>
+        <td class="govuk-table__cell">{{ document.updatedAt | toUkDateTime if document.updatedAt else 'N/A' }}</td>
+        <td class="govuk-table__cell">
+          <a class="govuk-button govuk-button--secondary govuk-!-margin-bottom-0 govuk-!-margin-right-2" data-module="govuk-button" href="{{ document.editHref | escape }}">Edit</a>
+          <form method="post" action="/policy-documents/delete" style="display:inline" data-confirm-delete data-confirm-message="Are you sure you want to permanently delete this document? This action cannot be undone.">
+            <input type="hidden" name="documentId" value="{{ document.documentId | escape }}">
+            <button type="submit" class="govuk-button govuk-button--warning govuk-!-margin-bottom-0" data-module="govuk-button">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if pagination.summary or pagination.items or pagination.previous or pagination.next %}
+  <div class="app-pagination-row app-pagination-row--{{ paginationAlignment | default('left') }} govuk-!-margin-top-6">
+    {% if pagination.items or pagination.previous or pagination.next %}
+    <div class="app-pagination-row__nav">
+      {{ govukPagination({
+        items: pagination.items,
+        previous: pagination.previous,
+        next: pagination.next,
+        landmarkLabel: 'Pagination'
+      }) }}
+    </div>
+    {% endif %}
+
+    {% if pagination.summary %}
+    <p class="govuk-body app-pagination-row__summary" data-testid="pagination-summary">Showing <strong>{{ pagination.summary.startItem }}</strong> to <strong>{{ pagination.summary.endItem }}</strong> of <strong>{{ pagination.summary.totalItems }}</strong> policy documents</p>
+    {% endif %}
+  </div>
+  {% endif %}
+{% else %}
+  <p class="govuk-body">No policy documents available.</p>
+{% endif %}
+
+{% endblock %}
