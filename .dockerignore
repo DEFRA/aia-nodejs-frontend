@@ -1,3 +1,57 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# GitHub
+.github
+
+# Environment
+.env
+.env.*
+.envrc
+
+# IDEs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build & Testing
 node_modules
-Dockerfile
+dist
+build
 coverage
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Development & CI/CD
+compose.yml
+docker-compose.yml
+sonar-project.properties
+nodemon.json
+
+# Config (dev-only)
+eslint.config.js
+babel.config.cjs
+postcss.config.js
+stylelint.config.js
+vitest.config.js
+webpack.config.js
+
+# Documentation
+*.md
+README.md
+LICENCE
+LICENSE
