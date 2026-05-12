@@ -27,9 +27,6 @@ export default {
       import: './javascripts/markdown-handler.js'
     }
   },
-  experiments: {
-    outputModule: true
-  },
   mode: NODE_ENV === 'production' ? 'production' : 'development',
   devtool: NODE_ENV === 'production' ? 'source-map' : 'inline-source-map',
   watchOptions: {
@@ -49,9 +46,9 @@ export default {
 
     path: path.join(dirname, '.public'),
     publicPath: '/public/',
-    libraryTarget: 'module',
-    module: true
+    scriptType: 'text/javascript'
   },
+  target: 'web',
   resolve: {
     alias: {
       '/public/assets': path.join(govukFrontendPath, 'dist/govuk/assets')
@@ -179,5 +176,4 @@ export default {
     loggingDebug: ['sass-loader'],
     preset: 'minimal'
   }
-  //target: 'browserslist:javascripts'
 }

@@ -1,49 +1,104 @@
 name: Publish
 
 on:
+  push:
+    branches:
+      - main
+      - development
+    tags:
+      - "v*.*.*"
   workflow_dispatch:
-#  push:
-#    branches:
-#      - main
-
-permissions:
-  id-token: write
-  contents: write
-  pull-requests: write
+    inputs:
+      environment:
+        description: 'Target environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - dev
+          - tst
+          - pre
+          - production
 
 env:
-  AWS_REGION: eu-west-2
-  AWS_ACCOUNT_ID: "094954420758"
+  REPOSITORY: aia/web
 
 jobs:
   build:
-    if: github.run_number != 1
-    name: CDP-build-workflow
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/main' && 'production') || (github.ref == 'refs/heads/development' && 'dev') || 'tst' }}
+    permissions:
+      id-token: write
+      contents: read
     steps:
-      - name: Check out code
+      - name: Checkout repository
         uses: actions/checkout@v4
-
-#      Uncomment this section if you are going to also run sonarqube as it
-#      requires the output from the test coverage.
-#      - name: Test code and Create Test Coverage Reports
-#        uses: actions/setup-node@v4
-#        with:
-#          node-version-file: .nvmrc
-#          cache: npm
-#      - run: |
-#          npm ci
-#          npm run build:frontend
-#          npm test
-
-      - name: Build and Publish
-        uses: DEFRA/cdp-build-action/build@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
-#      - name: SonarCloud Scan
-#        uses: SonarSource/sonarqube-scan-action@v5.3.1 #  (or check latest version on https://github.com/marketplace/actions/official-sonarqube-scan)
-#        continue-on-error: true
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ secrets.AWS_ENV_REGION }}
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ENV_ACCOUNT }}:role/${{ secrets.AWS_ENV_ROLE }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Generate raw tag
+        id: raw-tag
+        run: |
+          echo "raw_tag=$(git describe --always --tags)" >> $GITHUB_OUTPUT
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          flavor: |
+            latest=false
+          images: ${{ steps.login-ecr.outputs.registry }}/${{ env.REPOSITORY }}
+          tags: |
+            type=semver,event=tag,priority=900,pattern={{version}},value=${{ steps.raw-tag.outputs.raw_tag }},enable=${{ startsWith(github.ref, 'refs/tags/v') }}
+            type=raw,priority=800,value=${{ steps.raw-tag.outputs.raw_tag }},enable=${{ github.ref == format('refs/heads/{0}', 'main') }}
+            type=raw,priority=800,value=${{ steps.raw-tag.outputs.raw_tag }},enable=${{ github.ref == format('refs/heads/{0}', 'development') }}
+            type=raw,event=branch,value={{branch}}-{{sha}},enable=${{ startsWith(github.ref, 'refs/heads/F') }}
+          labels: |
+            org.opencontainers.image.licenses=OGL-UK-3.0
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          target: production
+          build-args: |
+            GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
+            BUILD_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+            SERVICE_VERSION=${{ vars.SERVICE_VERSION }}
+            ACCESS_CODE=${{ secrets.ACCESS_CODE }}
+            ACCESS_CODE_HASH=${{ secrets.ACCESS_CODE_HASH }}
+            BACKEND_API_URL=${{ secrets.BACKEND_API_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            FEATURE_SHOW_COST_USAGE=${{ secrets.FEATURE_SHOW_COST_USAGE }}
+            FEATURE_SHOW_POLICY_DOCUMENTS=${{ secrets.FEATURE_SHOW_POLICY_DOCUMENTS }}
+          push: true
+          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+
+      - name: Generate job summary
+        id: summary
+        run: |
+          {
+            echo "### Docker Image details"
+            echo "The tag is **${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}**"
+            echo "| Label      | Value |"
+            echo "| ---------- | ----- |"
+            echo "| created    | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }} |"
+            echo "| description| ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.description'] }} |"
+            echo "| licenses   | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.licenses'] }} |"
+            echo "| revision   | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }} |"
+            echo "| source     | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.source'] }} |"
+            echo "| title      | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.title'] }} |"
+            echo "| url        | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.url'] }} |"
+            echo "| version    | ${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }} |"
+          } >> $GITHUB_STEP_SUMMARY
