@@ -26,22 +26,7 @@
       {{ govukServiceNavigation({
         serviceName: serviceName,
         serviceUrl: serviceUrl,
-        navigation: navigation if navigation and navigation.length else (
-          [
-            {
-              href: "/cost",
-              text: "Cost Usage"
-            } if showCostUsage,
-            {
-              href: "/policy-documents",
-              text: "Policy Documents"
-            } if showPolicyDocuments and currentPath == "/home",
-            {
-              href: "/signout",
-              text: "Sign out"
-            } if isAuthenticationRequired
-          ] | selectattr | list
-        )
+        navigation: navigation if navigation and navigation.length else defaultNavigation
       }) }}
     {% endblock %}
   </header>

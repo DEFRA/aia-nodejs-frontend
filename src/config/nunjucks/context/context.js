@@ -22,7 +22,7 @@ const primaryNavLinks = [
     enabled: config.get('features.showCostUsage')
   },
   {
-    href: '/documents',
+    href: '/policy-documents',
     text: 'Policy Documents',
     enabled: config.get('features.showPolicyDocuments')
   }
