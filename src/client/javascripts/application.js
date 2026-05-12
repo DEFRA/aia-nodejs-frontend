@@ -22,6 +22,26 @@ if (document.getElementById('uploadForm')) {
   initUploadHandler()
 }
 
+function initDeleteConfirmation() {
+  document.addEventListener(
+    'submit',
+    (event) => {
+      const form = event.target
+      if (!form || form.nodeType !== 1 || form.tagName !== 'FORM') return
+      if (!form.matches('form[data-confirm-delete]')) return
+
+      const message =
+        form.getAttribute('data-confirm-message') ||
+        'Are you sure you want to delete this document?'
+
+      if (!window.confirm(message)) {
+        event.preventDefault()
+      }
+    },
+    true
+  )
+}
+
 function getTableProcessingCount() {
   return document.querySelectorAll(
     '#uploadHistoryTable [data-document-status="PROCESSING"]'
@@ -60,3 +80,4 @@ function initStatusPolling() {
 }
 
 initStatusPolling()
+initDeleteConfirmation()

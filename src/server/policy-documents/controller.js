@@ -69,19 +69,15 @@ function normalizeDocuments(body) {
   }
 
   const documents = rawDocuments.map((doc, index) => {
-    const id =
-      doc.urlId ?? doc.documentId ?? doc.id ?? `policy-doc-${index + 1}`
+    const id = doc.url_id ?? doc.urlId ?? `policy-doc-${index + 1}`
     return {
       documentId: id,
-      title:
-        doc.filename ?? doc.title ?? doc.name ?? 'Untitled policy document',
+      title: doc.filename ?? 'Untitled policy document',
       category: doc.category ?? 'N/A',
-      type: doc.source ?? doc.type ?? 'N/A',
-      sourceUrl: sanitizeSourceUrl(doc.url ?? doc.sourceUrl ?? ''),
-      isActive: Boolean(doc.isActive ?? doc.active ?? true),
-      updatedAt: toDisplayDate(
-        doc.updatedAt ?? doc.lastUpdatedAt ?? doc.createdAt
-      ),
+      type: doc.source ?? 'N/A',
+      sourceUrl: sanitizeSourceUrl(doc.url ?? ''),
+      isActive: Boolean(doc.isactive ?? doc.isActive ?? true),
+      updatedAt: toDisplayDate(doc.updatedAt),
       editHref: `/policy-documents/edit?documentId=${encodeURIComponent(id)}`
     }
   })
@@ -327,7 +323,7 @@ async function fetchPolicyDocumentById(request, documentId) {
   }
 
   const fallbackMatch = fallbackPolicyDocuments.find(
-    (doc) => String(doc.urlId ?? doc.documentId) === String(documentId)
+    (doc) => String(doc.url_id ?? doc.urlId) === String(documentId)
   )
   if (!fallbackMatch) return null
 
