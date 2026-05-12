@@ -44,11 +44,8 @@ nodemon.json
 
 # Config (dev-only)
 eslint.config.js
-babel.config.cjs
-postcss.config.js
 stylelint.config.js
 vitest.config.js
-webpack.config.js
 
 # Documentation
 *.md
