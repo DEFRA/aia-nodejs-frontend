@@ -1,6 +1,6 @@
 # aia-frontend
 
-**AI Assure Architecture Governance** — server-rendered Node.js web application built on the Defra DDTS template. Handles document uploads and displays AI architecture assessment results using the GOV.UK Design System.
+**AI Assure Architecture Governance** — server-rendered Node.js web application built on the Defra DDTS template. Handles document uploads, displays AI architecture assessment results, and reports AI token cost usage using the GOV.UK Design System.
 
 - **Framework**: Hapi 21 + Nunjucks + Webpack 5
 - **Runtime**: Node.js ≥ 24 (see `.nvmrc`)
@@ -92,6 +92,13 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | `ITEMS_PER_PAGE`       | `10`    | Records per page in upload history      |
 | `PAGINATION_ALIGNMENT` | `left`  | Pagination alignment (`left` / `right`) |
 
+### Feature flags
+
+| Variable                        | Default | Description                                               |
+| ------------------------------- | ------- | --------------------------------------------------------- |
+| `FEATURE_SHOW_COST_USAGE`       | `false` | Show the **Cost Usage** link in the main navigation       |
+| `FEATURE_SHOW_POLICY_DOCUMENTS` | `false` | Show the **Policy Documents** link in the main navigation |
+
 ### Upload
 
 | Variable                  | Default | Description                    |
@@ -133,6 +140,43 @@ The frontend proxies all data through the Hapi server — the browser never call
 | `COMPLETE`         | Completed             |
 | `PARTIAL_COMPLETE` | Completed - Partially |
 | `ERROR`            | Error                 |
+
+### Cost usage flow
+
+1. `GET /cost` calls `GET /api/v1/cost-usage?page=<n>&limit=<itemsPerPage>` with standard backend headers
+2. The response must include `costUsage[]`, `pagination.total`, and a `summary` block
+3. Each document's agent rows are enriched: `totalTokens = inputTokens + outputTokens`
+4. A summary card row at the top shows total cost, total documents, and total tokens (input / output on separate lines)
+5. If the backend is unavailable (network error or non-OK status), the page falls back to `src/server/cost/cost-usage.json` and paginates it in memory
+6. The nav link is hidden by default — set `FEATURE_SHOW_COST_USAGE=true` to show it
+
+#### Cost API response shape
+
+```json
+{
+  "costUsage": [
+    {
+      "doc_id": "...",
+      "file_name": "Report.docx",
+      "uploadedAt": "2026-05-01T10:00:00Z",
+      "agents": [
+        { "name": "Architecture", "inputTokens": 6800, "outputTokens": 4500 }
+      ],
+      "totalCost": 0.29,
+      "currency": "USD"
+    }
+  ],
+  "pagination": { "total": 42 },
+  "summary": {
+    "totalCost": 12.50,
+    "currency": "USD",
+    "totalDocuments": 42,
+    "totalInputTokens": 107200,
+    "totalOutputTokens": 72700,
+    "totalTokens": 179900
+  }
+}
+```
 
 ### Mock data fallback
 
@@ -188,6 +232,7 @@ Coverage target: **80% minimum** across all source files. Reports are written to
 - Integration tests spin up a real Hapi server via `createServer()` and mock `global.fetch` to simulate backend responses
 - Unit tests mock the config module with `vi.doMock` and control `global.fetch` per scenario
 - `MOCK_DATA_RESULT=false` is set in `vitest.config.js` to reflect the production default
+- `NODE_ENV=test` is set explicitly in the `test` script so Convict initialises with memory session cache and logging disabled
 
 ---
 
@@ -222,11 +267,16 @@ Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults t
 | `src/server/server.js`                         | Hapi server setup, plugin registration                      |
 | `src/server/router.js`                         | Route module registration                                   |
 | `src/config/config.js`                         | Convict config — all env vars, validated at startup         |
-| `src/server/home/controller.js`                | Upload history, pagination, upload proxy, poll proxy        |
-| `src/server/result/controller.js`              | Result page — fetches from API, renders markdown            |
-| `src/server/common/helpers/backend-headers.js` | Builds `Authorization` and `X-User-Id` headers              |
-| `src/server/common/helpers/user-resolver.js`   | Resolves guest/SSO user once per session, caches in session |
-| `src/client/javascripts/status-poller.js`      | Client-side singleton polling module                        |
-| `src/client/javascripts/application.js`        | GOV.UK component init + polling bootstrap                   |
-| `webpack.config.js`                            | Bundles client JS/SCSS, copies GOV.UK assets                |
-| `compose.yml`                                  | Docker Compose (app + Redis)                                |
+| `src/server/home/controller.js`                      | Upload history, pagination, upload proxy, poll proxy          |
+| `src/server/result/controller.js`                    | Result page — fetches from API, renders markdown              |
+| `src/server/cost/controller.js`                      | Cost usage page — fetches from API, enriches agent data, paginates |
+| `src/server/cost/index.njk`                          | Cost usage template — summary cards, grouped table, pagination |
+| `src/server/cost/cost-usage.json`                    | Local fallback data used when the cost API is unavailable     |
+| `src/client/stylesheets/components/_cost-usage.scss` | SCSS for summary cards and cost breakdown table               |
+| `src/config/nunjucks/filters/format-number.js`       | Nunjucks filter — formats numbers with thousands separators   |
+| `src/server/common/helpers/backend-headers.js`       | Builds `Authorization` and `X-User-Id` headers                |
+| `src/server/common/helpers/user-resolver.js`         | Resolves guest/SSO user once per session, caches in session   |
+| `src/client/javascripts/status-poller.js`            | Client-side singleton polling module                          |
+| `src/client/javascripts/application.js`              | GOV.UK component init + polling bootstrap                     |
+| `webpack.config.js`                                  | Bundles client JS/SCSS, copies GOV.UK assets                  |
+| `compose.yml`                                        | Docker Compose (app + Redis)                                  |
