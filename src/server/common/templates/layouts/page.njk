@@ -29,28 +29,18 @@
         navigation: navigation if navigation and navigation.length else (
           [
             {
+              href: "/cost",
+              text: "Cost Usage"
+            } if showCostUsage,
+            {
               href: "/policy-documents",
               text: "Policy Documents"
-            },
+            } if showPolicyDocuments and currentPath == "/home",
             {
               href: "/signout",
               text: "Sign out"
-            }
-          ] if showPolicyDocuments and currentPath == "/home" and isAuthenticationRequired else (
-            [
-              {
-                href: "/policy-documents",
-                text: "Policy Documents"
-              }
-            ] if showPolicyDocuments and currentPath == "/home" else (
-            [
-              {
-                href: "/signout",
-                text: "Sign out"
-              }
-            ] if isAuthenticationRequired else []
-            )
-          )
+            } if isAuthenticationRequired
+          ] | selectattr | list
         )
       }) }}
     {% endblock %}
