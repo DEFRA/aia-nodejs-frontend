@@ -176,14 +176,6 @@ export const config = convict({
     default: false,
     env: 'IS_AUTHENTICATION_REQUIRED'
   },
-  featureFlags: {
-    showPolicyDocuments: {
-      doc: 'Show PolicyDocuments navigation entry when enabled',
-      format: Boolean,
-      default: true,
-      env: 'FEATURE_SHOW_POLICY_DOCUMENTS'
-    }
-  },
   session: {
     cache: {
       engine: {
@@ -335,13 +327,13 @@ export const config = convict({
     showCostUsage: {
       doc: 'Show the Cost Usage link in the main navigation',
       format: Boolean,
-      default: false,
+      default: true,
       env: 'FEATURE_SHOW_COST_USAGE'
     },
     showPolicyDocuments: {
       doc: 'Show the Policy Documents link in the main navigation',
       format: Boolean,
-      default: false,
+      default: true,
       env: 'FEATURE_SHOW_POLICY_DOCUMENTS'
     }
   }

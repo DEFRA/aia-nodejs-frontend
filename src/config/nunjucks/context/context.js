@@ -61,7 +61,8 @@ export function context(request) {
     breadcrumbs: [],
     isAuthenticationRequired: isAuthRequired,
     defaultNavigation,
-    showPolicyDocuments: config.get('featureFlags.showPolicyDocuments'),
+    showCostUsage: config.get('features.showCostUsage'),
+    showPolicyDocuments: config.get('features.showPolicyDocuments'),
     getAssetPath(asset) {
       const webpackAssetPath = webpackManifest?.[asset]
       return `${assetPath}/${webpackAssetPath ?? asset}`

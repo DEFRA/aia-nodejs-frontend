@@ -54,6 +54,7 @@ describe('context and cache', () => {
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
           serviceUrl: '/home',
+          showCostUsage: true,
           showPolicyDocuments: true
         })
       })
@@ -136,6 +137,7 @@ describe('context and cache', () => {
           maxUploadFileSizeBytes: 52428800,
           serviceName: 'AI Assure Architecture Governance',
           serviceUrl: '/home',
+          showCostUsage: true,
           showPolicyDocuments: true
         })
       })
