@@ -5,7 +5,7 @@
 {% block pageTitle %}{% if errorList and errorList.length %}Error: {% endif %}{{ pageTitle | escape }}{% endblock %}
 
 {% block content %}
-<a href="/policy-documents" class="govuk-back-link">Back to PolicyDocuments</a>
+<a href="/policy-documents" class="govuk-back-link">Back to Policy documents</a>
 
 <h1 class="govuk-heading-l">{{ heading | escape }}</h1>
 
@@ -28,7 +28,7 @@
 {% endif %}
 
 {% if notFound %}
-  <p class="govuk-body">The selected policy document could not be found.</p>
+  <p class="govuk-body">The selected policy document could not be found</p>
 {% elif document is not undefined %}
   <form method="post" action="{{ '/policy-documents/new' if isNew else '/policy-documents/edit' }}" novalidate>
     {% if not isNew %}
@@ -36,7 +36,7 @@
     {% endif %}
 
     <div class="govuk-form-group{% if errors.title %} govuk-form-group--error{% endif %}">
-      <label class="govuk-label" for="title">Title/FileName</label>
+      <label class="govuk-label" for="title">Title/Filename</label>
       {% if errors.title %}
         <p id="title-error" class="govuk-error-message"><span class="govuk-visually-hidden">Error:</span> {{ errors.title | escape }}</p>
       {% endif %}
@@ -92,7 +92,7 @@
     <div class="govuk-form-group">
       <fieldset class="govuk-fieldset" aria-describedby="is-active-hint">
         <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Is Active</legend>
-        <div id="is-active-hint" class="govuk-hint">Select if this policy document is active.</div>
+        <div id="is-active-hint" class="govuk-hint">Select if this policy document is active</div>
         <div class="govuk-radios" data-module="govuk-radios">
           <div class="govuk-radios__item">
             <input class="govuk-radios__input" id="isActive-yes" name="isActive" type="radio" value="true" {% if document.isActive %}checked{% endif %}>

@@ -23,7 +23,7 @@
 <form id="uploadForm" method="post" action="/upload" enctype="multipart/form-data" novalidate>
   <div class="govuk-form-group" id="templateTypeGroup">
     <label class="govuk-label" for="templateType">
-      Document Template Type
+      Document template type
     </label>
     <p class="govuk-error-message app-error-message" id="templateTypeError" hidden>
       <span class="govuk-visually-hidden">Error:</span>
@@ -46,7 +46,9 @@
         accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         aria-describedby="fileError fileDropHint"
         data-max-file-size-bytes="{{ maxUploadFileSizeBytes }}">
-      <div id="fileSpinner" class="spinner"></div>
+      <div id="fileSpinner" class="spinner" aria-live="polite" aria-busy="false" style="margin-top:10px;" hidden>
+        <span class="govuk-visually-hidden">Uploading, please wait…</span>
+      </div>
     </div>
   </div>
   {{ govukButton({ text: "Upload", attributes: { type: "submit", id: "submitButton" } }) }}
@@ -67,7 +69,7 @@
     <thead class="govuk-table__head">
       <tr class="govuk-table__row">
         <th class="govuk-table__header">Filename</th>
-        <th class="govuk-table__header">Template Type</th>
+        <th class="govuk-table__header">Template type</th>
         <th class="govuk-table__header">Status</th>
         <th class="govuk-table__header upload-history-timestamp">Timestamp</th>
         <th class="govuk-table__header">Action</th>

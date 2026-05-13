@@ -237,6 +237,7 @@ export function initUploadHandler() {
 
   // ── Form submit ───────────────────────────────────────────────────────────
   if (form) {
+    const spinner = document.getElementById('fileSpinner')
     form.addEventListener('submit', async function (event) {
       event.preventDefault()
 
@@ -266,8 +267,12 @@ export function initUploadHandler() {
 
       if (hasError) {
         updateErrorSummary()
+        if (spinner) spinner.classList.remove('spinner--visible')
         return
       }
+
+      // Show spinner
+      if (spinner) spinner.classList.add('spinner--visible')
 
       form.submit()
     })

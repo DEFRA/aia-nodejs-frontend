@@ -65,8 +65,8 @@ describe('#policyDocumentsController', () => {
     })
 
     expect(statusCode).toBe(statusCodes.ok)
-    expect(result).toContain('PolicyDocuments')
-    expect(result).toContain('Title/FileName')
+    expect(result).toContain('Policy Documents')
+    expect(result).toContain('Title/Filename')
     expect(result).toContain('Source')
     expect(result).not.toContain('Document ID')
     expect(result).toContain('>Edit</a>')
@@ -225,7 +225,7 @@ describe('#policyDocumentsController', () => {
 
     expect(statusCode).toBe(statusCodes.ok)
     expect(result).toContain('Edit Policy Document')
-    expect(result).toContain('Title/FileName')
+    expect(result).toContain('Title/Filename')
     expect(result).toContain('>Source</label>')
     expect(result).toContain('<option value="Security"')
     expect(result).toContain('<option value="Technology"')

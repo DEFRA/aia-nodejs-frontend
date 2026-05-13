@@ -130,7 +130,7 @@ export const costController = {
     }
 
     return h.view('cost/index', {
-      pageTitle: 'Cost usage',
+      pageTitle: 'Cost Usage',
       costUsage: enrichCostData(costUsageData),
       summary: summaryData,
       pagination,

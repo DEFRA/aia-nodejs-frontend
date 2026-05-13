@@ -294,8 +294,8 @@ export const policyDocumentsController = {
     }
 
     return h.view('policy-documents/index', {
-      pageTitle: 'PolicyDocuments',
-      heading: 'PolicyDocuments',
+      pageTitle: 'Policy Documents',
+      heading: 'Policy Documents',
       policyDocuments: pageDocuments,
       pagination,
       paginationAlignment: config.get('pagination.alignment')
