@@ -23,8 +23,11 @@ function buildDOM({ maxFileSizeBytes = '' } = {}) {
         <p id="fileError" class="govuk-error-message" style="display:none">
           <span id="fileErrorText"></span>
         </p>
-        <input id="file" type="file" class="govuk-file-upload"
-          ${maxFileSizeBytes ? `data-max-file-size-bytes="${maxFileSizeBytes}"` : ''} />
+        <div id="fileDropZone" class="file-selection-area app-file-dropzone" role="button" tabindex="0">
+          <p id="fileDropHint">Drag and drop a DOCX file here, or choose a file.</p>
+          <input id="file" type="file" class="govuk-file-upload"
+            ${maxFileSizeBytes ? `data-max-file-size-bytes="${maxFileSizeBytes}"` : ''} />
+        </div>
       </div>
       <button type="submit">Upload</button>
     </form>
@@ -36,6 +39,7 @@ function getEls() {
     form: document.getElementById('uploadForm'),
     sel: document.getElementById('templateType'),
     fileInput: document.getElementById('file'),
+    fileDropZone: document.getElementById('fileDropZone'),
     templateTypeGroup: document.getElementById('templateTypeGroup'),
     templateTypeError: document.getElementById('templateTypeError'),
     templateTypeErrorText: document.getElementById('templateTypeErrorText'),
@@ -67,6 +71,19 @@ function attachFile(input, file) {
     length: 1
   })
   Object.defineProperty(input, 'files', { value: fileList, configurable: true })
+}
+
+function buildDropEvent(file) {
+  const fileList = Object.assign([file], {
+    item: (i) => (i === 0 ? file : null),
+    length: 1
+  })
+  const event = new Event('drop', { bubbles: true, cancelable: true })
+  Object.defineProperty(event, 'dataTransfer', {
+    value: { files: fileList },
+    configurable: true
+  })
+  return event
 }
 
 // ── Tests ──────────────────────────────────────────────────────────────────────
@@ -190,6 +207,50 @@ describe('initUploadHandler', () => {
 
       expect(fileError.style.display).toBe('block')
       expect(fileErrorText.textContent).toMatch(/maximum allowed size/)
+    })
+
+    test('validates dropped file and shows error for invalid drop', async () => {
+      const { fileDropZone, fileError, fileErrorText } = getEls()
+      const badFile = makeFile([0x00, 0x01, 0x02, 0x03])
+
+      fileDropZone.dispatchEvent(buildDropEvent(badFile))
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      expect(fileError.style.display).toBe('block')
+      expect(fileErrorText.textContent).toContain('valid DOCX')
+    })
+
+    test('keeps dragover class only while dragging over drop zone', () => {
+      const { fileDropZone } = getEls()
+
+      fileDropZone.dispatchEvent(new Event('dragover', { bubbles: true }))
+      expect(fileDropZone.classList.contains('is-dragover')).toBe(true)
+
+      fileDropZone.dispatchEvent(new Event('dragleave', { bubbles: true }))
+      expect(fileDropZone.classList.contains('is-dragover')).toBe(false)
+    })
+
+    test('clicking drop zone opens file picker', () => {
+      const { fileDropZone, fileInput } = getEls()
+      const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {})
+
+      fileDropZone.dispatchEvent(new Event('click', { bubbles: true }))
+
+      expect(clickSpy).toHaveBeenCalledTimes(1)
+    })
+
+    test('pressing Enter or Space on drop zone opens file picker', () => {
+      const { fileDropZone, fileInput } = getEls()
+      const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {})
+
+      fileDropZone.dispatchEvent(
+        new window.KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+      )
+      fileDropZone.dispatchEvent(
+        new window.KeyboardEvent('keydown', { key: ' ', bubbles: true })
+      )
+
+      expect(clickSpy).toHaveBeenCalledTimes(2)
     })
   })
 
