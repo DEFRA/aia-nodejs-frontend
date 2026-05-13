@@ -592,7 +592,7 @@ describe('#costController - unit tests', () => {
     const { request, h } = buildContext()
     const result = await handler(request, h)
 
-    expect(result.pageTitle).toBe('Cost usage')
+    expect(result.pageTitle).toBe('Cost Usage')
 
     global.fetch = originalFetch
   })
