@@ -108,12 +108,65 @@ function clearFileError() {
   input.classList.remove('govuk-file-upload--error')
 }
 
+function setInputFiles(input, files) {
+  if (!input || !files || files.length === 0) return false
+
+  const DataTransferCtor = globalThis?.DataTransfer
+  if (typeof DataTransferCtor === 'function') {
+    const transfer = new DataTransferCtor()
+    for (const file of files) {
+      transfer.items.add(file)
+    }
+    input.files = transfer.files
+    return true
+  }
+
+  try {
+    Object.defineProperty(input, 'files', {
+      value: files,
+      configurable: true
+    })
+    return true
+  } catch {
+    return false
+  }
+}
+
+async function validateSelectedFile(fileInput, maxFileSizeBytes) {
+  clearFileError()
+  const file = fileInput?.files?.[0]
+  if (!file) {
+    updateErrorSummary()
+    return false
+  }
+
+  try {
+    const result = await validateDocxFile(file, { maxFileSizeBytes })
+    if (!result.valid) {
+      showFileError(result.message)
+      fileInput.value = ''
+      updateErrorSummary()
+      return false
+    }
+  } catch {
+    showFileError('Unable to validate the file. Please try again.')
+    fileInput.value = ''
+    updateErrorSummary()
+    return false
+  }
+
+  clearFileError()
+  updateErrorSummary()
+  return true
+}
+
 // ── Main init — called once when the upload form is present ───────────────────
 
 export function initUploadHandler() {
   const sel = document.getElementById('templateType')
   const form = document.getElementById('uploadForm')
   const fileInput = document.getElementById('file')
+  const fileDropZone = document.getElementById('fileDropZone')
 
   const maxFileSizeBytesRaw = fileInput?.dataset?.maxFileSizeBytes
   const maxFileSizeBytes = maxFileSizeBytesRaw
@@ -130,16 +183,55 @@ export function initUploadHandler() {
   // ── File input: validate on selection ─────────────────────────────────────
   if (fileInput) {
     fileInput.addEventListener('change', async function () {
-      clearFileError()
-      const file = this.files[0]
-      if (!file) return
+      await validateSelectedFile(this, maxFileSizeBytes)
+    })
+  }
 
-      const result = await validateDocxFile(file, { maxFileSizeBytes })
-      if (!result.valid) {
-        showFileError(result.message)
-        this.value = '' // clear so the invalid file cannot be submitted
+  // ── Drag and drop: assign file to input and run standard validation ───────
+  if (fileDropZone && fileInput) {
+    const onDragOver = (event) => {
+      event.preventDefault()
+      fileDropZone.classList.add('is-dragover')
+    }
+
+    const onDragLeave = (event) => {
+      event.preventDefault()
+      if (event.currentTarget?.contains?.(event.relatedTarget)) {
+        return
       }
-      updateErrorSummary()
+      fileDropZone.classList.remove('is-dragover')
+    }
+
+    fileDropZone.addEventListener('dragenter', onDragOver)
+    fileDropZone.addEventListener('dragover', onDragOver)
+    fileDropZone.addEventListener('dragleave', onDragLeave)
+    fileDropZone.addEventListener('dragend', onDragLeave)
+
+    fileDropZone.addEventListener('drop', async (event) => {
+      event.preventDefault()
+      fileDropZone.classList.remove('is-dragover')
+
+      const droppedFiles = event.dataTransfer?.files
+      if (!droppedFiles || droppedFiles.length === 0) return
+
+      const didSetFiles = setInputFiles(fileInput, droppedFiles)
+      if (!didSetFiles) {
+        showFileError('Unable to read the dropped file. Please choose a file.')
+        updateErrorSummary()
+        return
+      }
+
+      await validateSelectedFile(fileInput, maxFileSizeBytes)
+    })
+
+    fileDropZone.addEventListener('click', () => {
+      fileInput.click()
+    })
+
+    fileDropZone.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return
+      event.preventDefault()
+      fileInput.click()
     })
   }
 
@@ -166,16 +258,8 @@ export function initUploadHandler() {
         showFileError('Please select a file')
         hasError = true
       } else {
-        try {
-          const result = await validateDocxFile(file, { maxFileSizeBytes })
-          if (!result.valid) {
-            showFileError(result.message)
-            hasError = true
-          } else {
-            clearFileError()
-          }
-        } catch {
-          showFileError('Unable to validate the file. Please try again.')
+        const isValid = await validateSelectedFile(input, maxFileSizeBytes)
+        if (!isValid) {
           hasError = true
         }
       }

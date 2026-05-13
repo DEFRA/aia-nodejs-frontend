@@ -43,6 +43,25 @@
   display: none;
 }
 
+.app-file-dropzone {
+  border: 2px dashed #b1b4b6;
+  border-radius: 4px;
+  padding: 12px;
+  background-color: #f3f2f1;
+  transition: border-color 0.2s ease;
+
+  &:focus-visible,
+  &.is-dragover {
+    border-color: #1d70b8;
+    outline: 3px solid #ffdd00;
+    outline-offset: 0;
+  }
+}
+
+.app-file-dropzone__hint {
+  margin-bottom: 8px;
+}
+
 // Upload history section
 .upload-history-container {
   margin-top: 1em;
@@ -132,6 +151,12 @@
 .govuk-table__header {
   font-size: 16px;
   font-weight: 600;
+}
+
+.upload-history-timestamp {
+  width: 190px;
+  min-width: 190px;
+  white-space: nowrap;
 }
 
 // Status badge styling
