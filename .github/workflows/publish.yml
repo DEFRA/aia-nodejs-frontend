@@ -51,11 +51,11 @@ jobs:
         run: |
           echo "raw_tag=$(git describe --always --tags)" >> $GITHUB_OUTPUT
 
-        - name: Generate semantic version for main
-          id: semver-main
-          if: github.ref == 'refs/heads/main'
-          run: |
-            echo "semver=0.${GITHUB_RUN_NUMBER}.0" >> $GITHUB_OUTPUT
+      - name: Generate semantic version tag for main
+        id: semver-main
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "semver=0.${GITHUB_RUN_NUMBER}.0" >> $GITHUB_OUTPUT
 
       - name: Extract Docker metadata
         id: meta
