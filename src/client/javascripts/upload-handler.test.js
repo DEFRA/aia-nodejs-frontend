@@ -24,7 +24,7 @@ function buildDOM({ maxFileSizeBytes = '' } = {}) {
           <span id="fileErrorText"></span>
         </p>
         <div id="fileDropZone" class="file-selection-area app-file-dropzone" role="button" tabindex="0">
-          <p id="fileDropHint">Drag and drop a DOCX file here, or choose a file.</p>
+          <p id="fileDropHint">Drag and drop a DOCX file here, or choose a file</p>
           <input id="file" type="file" class="govuk-file-upload"
             ${maxFileSizeBytes ? `data-max-file-size-bytes="${maxFileSizeBytes}"` : ''} />
         </div>

@@ -1,0 +1,39 @@
+// DEFRA GDS button overrides for policy-documents page
+
+// Primary button (Add New Document)
+.defra-gds-button {
+  background-color: #00703c;
+  color: #fff;
+  border: none;
+}
+.defra-gds-button:focus,
+.defra-gds-button:active {
+  background-color: #005a30;
+  color: #fff;
+}
+
+// Secondary button (Edit)
+.defra-gds-button--secondary {
+  background-color: #f3f2f1;
+  color: #00703c;
+  border: 2px solid #00703c;
+}
+.defra-gds-button--secondary:focus,
+.defra-gds-button--secondary:active {
+  background-color: #e1e3e2;
+  color: #005a30;
+  border-color: #005a30;
+}
+
+// Warning button (Delete)
+.defra-gds-button--warning {
+  background-color: #d4351c;
+  color: #fff;
+  border: 2px solid #d4351c;
+}
+.defra-gds-button--warning:focus,
+.defra-gds-button--warning:active {
+  background-color: #942514;
+  color: #fff;
+  border-color: #942514;
+}
