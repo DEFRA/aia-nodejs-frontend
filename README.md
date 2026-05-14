@@ -12,7 +12,6 @@
 
 - Node.js v24+
 - npm v10+
-- Redis (production only — dev defaults to in-memory session cache)
 
 ---
 
@@ -65,8 +64,7 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | `NODE_ENV`                | `development`                   | `production` / `development` / `test` |
 | `PORT`                    | `3000`                          | Server port                           |
 | `SESSION_COOKIE_PASSWORD` | dev value                       | Must be 32+ chars in production       |
-| `SESSION_CACHE_ENGINE`    | `memory` (dev) / `redis` (prod) | Session backend                       |
-| `REDIS_HOST`              | `127.0.0.1`                     | Required when using Redis             |
+| `SESSION_CACHE_ENGINE`    | `memory`                        | Session backend                       |
 
 ### Backend integration
 
@@ -248,14 +246,12 @@ All checks must pass. Use `npm run pr-prep` to run the same checks locally befor
 
 ---
 
-## Docker / local stack with Redis
+## Docker / local stack
 
 ```bash
-# Start app + Redis via Docker Compose
+# Start app via Docker Compose
 docker compose up
 ```
-
-Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults to in-memory.
 
 ---
 
@@ -279,4 +275,4 @@ Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults t
 | `src/client/javascripts/status-poller.js`            | Client-side singleton polling module                               |
 | `src/client/javascripts/application.js`              | GOV.UK component init + polling bootstrap                          |
 | `webpack.config.js`                                  | Bundles client JS/SCSS, copies GOV.UK assets                       |
-| `compose.yml`                                        | Docker Compose (app + Redis)                                       |
+| `compose.yml`                                        | Docker Compose (app)                                                |

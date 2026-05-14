@@ -1,14 +1,4 @@
 services:
-  redis:
-    image: redis:7-alpine
-    networks:
-      - cdp-network
-    volumes:
-      - ./tests/tls:/tls
-      - ./redis.conf:/etc/redis.conf
-    command: [
-      "/etc/redis.conf"
-    ]
   service:
     build:
       context: ../..
@@ -17,15 +7,9 @@ services:
       - cdp-network
     ports:
       - "8085:8085"
-    depends_on:
-      - redis
     environment:
       PORT: 8085
-      TRUSTSTORE_REDIS: "${REDIS_TEST_CA}"
-      REDIS_HOST: redis
-      REDIS_USERNAME: username
-      REDIS_PASSWORD: password
-      USE_SINGLE_INSTANCE_CACHE: true
+      SESSION_CACHE_ENGINE: memory
       LOG_LEVEL: debug
       NODE_TLS_REJECT_UNAUTHORIZED: 0
     healthcheck:
