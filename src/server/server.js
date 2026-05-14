@@ -52,7 +52,7 @@ export async function createServer() {
     cache: [
       {
         name: config.get('session.cache.name'),
-        engine: getCacheEngine(config.get('session.cache.engine'))
+        engine: getCacheEngine()
       }
     ],
     state: {
