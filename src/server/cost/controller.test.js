@@ -87,7 +87,7 @@ describe('#costController', () => {
     })
 
     expect(result).toContain(
-      'cost data carefully before using it to make decisions'
+      'These figures represent AI token costs for document analysis only. They may not reflect total system costs.'
     )
   })
 
