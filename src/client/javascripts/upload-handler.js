@@ -224,7 +224,8 @@ export function initUploadHandler() {
       await validateSelectedFile(fileInput, maxFileSizeBytes)
     })
 
-    fileDropZone.addEventListener('click', () => {
+    fileDropZone.addEventListener('click', (event) => {
+      if (event.target === fileInput) return
       fileInput.click()
     })
 
