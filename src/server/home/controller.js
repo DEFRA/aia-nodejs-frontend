@@ -161,7 +161,7 @@ export const homeController = {
     }
 
     return h.view('home/index', {
-      pageTitle: uploadError ? 'Error: Upload Document' : 'Upload Document',
+      pageTitle: uploadError ? 'Error: AIA' : 'AIA',
       heading: 'Home',
       uploads: pageUploads,
       allUploadFilenames: uploadsData.map((u) => u.originalFilename),
