@@ -182,6 +182,11 @@ export function initUploadHandler() {
 
   // ── File input: validate on selection ─────────────────────────────────────
   if (fileInput) {
+    fileInput.addEventListener('click', (event) => {
+      // Prevent parent drop zone click handler from re-opening chooser in Chrome.
+      event.stopPropagation()
+    })
+
     fileInput.addEventListener('change', async function () {
       await validateSelectedFile(this, maxFileSizeBytes)
     })
@@ -225,7 +230,9 @@ export function initUploadHandler() {
     })
 
     fileDropZone.addEventListener('click', (event) => {
-      if (event.target === fileInput) return
+      const clickPath =
+        typeof event.composedPath === 'function' ? event.composedPath() : []
+      if (event.target === fileInput || clickPath.includes(fileInput)) return
       fileInput.click()
     })
 

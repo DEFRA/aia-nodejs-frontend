@@ -248,6 +248,21 @@ describe('initUploadHandler', () => {
       expect(clickSpy).toHaveBeenCalledTimes(0)
     })
 
+    test('does not open picker when click event path includes file input', () => {
+      const { fileDropZone, fileInput } = getEls()
+      const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {})
+      const clickEvent = new Event('click', { bubbles: true })
+
+      Object.defineProperty(clickEvent, 'composedPath', {
+        value: () => [fileInput, fileDropZone, document.body, document],
+        configurable: true
+      })
+
+      fileDropZone.dispatchEvent(clickEvent)
+
+      expect(clickSpy).toHaveBeenCalledTimes(0)
+    })
+
     test('pressing Enter or Space on drop zone opens file picker', () => {
       const { fileDropZone, fileInput } = getEls()
       const clickSpy = vi.spyOn(fileInput, 'click').mockImplementation(() => {})
