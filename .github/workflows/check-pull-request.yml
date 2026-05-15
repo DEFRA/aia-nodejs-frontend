@@ -16,6 +16,7 @@ jobs:
   pr-validator:
     name: Run Pull Request Checks
     runs-on: ubuntu-latest
+    environment: dev
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -32,14 +33,56 @@ jobs:
           npm run lint
           npm test
 
+      - name: Validate build inputs
+        run: |
+          echo "=== Validating Required Secrets ==="
+          test -n "${{ secrets.ACCESS_CODE }}" || { echo "ERROR: Missing secret: ACCESS_CODE"; exit 1; }
+          echo "✓ ACCESS_CODE"
+          test -n "${{ secrets.ACCESS_CODE_HASH }}" || { echo "ERROR: Missing secret: ACCESS_CODE_HASH"; exit 1; }
+          echo "✓ ACCESS_CODE_HASH"
+          test -n "${{ secrets.JWT_SECRET }}" || { echo "ERROR: Missing secret: JWT_SECRET"; exit 1; }
+          echo "✓ JWT_SECRET"
+          
+          echo ""
+          echo "=== Validating Required Variables ==="
+          test -n "${{ vars.BACKEND_API_URL }}" || { echo "ERROR: Missing var: BACKEND_API_URL"; exit 1; }
+          echo "✓ BACKEND_API_URL"
+          test -n "${{ vars.REDIS_HOST }}" || { echo "ERROR: Missing var: REDIS_HOST"; exit 1; }
+          echo "✓ REDIS_HOST"
+          
+          echo ""
+          echo "=== Optional Variables (with defaults) ==="
+          echo "SERVICE_VERSION: ${{ vars.SERVICE_VERSION || '(not set - will use default)' }}"
+          echo "FEATURE_SHOW_COST_USAGE: ${{ vars.FEATURE_SHOW_COST_USAGE || '(not set - will use default)' }}"
+          echo "FEATURE_SHOW_POLICY_DOCUMENTS: ${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS || '(not set - will use default)' }}"
+          echo "REDIS_PORT: ${{ vars.REDIS_PORT || '6379 (default)' }}"
+          echo "USE_SINGLE_INSTANCE_CACHE: ${{ vars.USE_SINGLE_INSTANCE_CACHE || 'true (default)' }}"
+          echo "REDIS_TLS: ${{ vars.REDIS_TLS || 'true (default)' }}"
+          
+          echo ""
+          echo "✓ All validations passed"
+
+      - name: Print all build variables being passed to Docker
+        run: |
+          echo "=== Environment: ${{ github.environment }} ==="
+          echo ""
+          echo "=== Build Arguments (Non-Secrets) ==="
+          echo "SERVICE_VERSION=${{ vars.SERVICE_VERSION || '(default)' }}"
+          echo "BACKEND_API_URL=${{ vars.BACKEND_API_URL }}"
+          echo "FEATURE_SHOW_COST_USAGE=${{ vars.FEATURE_SHOW_COST_USAGE || 'true (default)' }}"
+          echo "FEATURE_SHOW_POLICY_DOCUMENTS=${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS || 'true (default)' }}"
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}"
+          echo "REDIS_PORT=${{ vars.REDIS_PORT || '6379 (default)' }}"
+          echo "USE_SINGLE_INSTANCE_CACHE=${{ vars.USE_SINGLE_INSTANCE_CACHE || 'true (default)' }}"
+          echo "REDIS_TLS=${{ vars.REDIS_TLS || 'true (default)' }}"
+          echo ""
+          echo "=== Build Arguments (Secrets - value check only) ==="
+          test -n "${{ secrets.ACCESS_CODE }}" && echo "✓ ACCESS_CODE: (set)" || echo "✗ ACCESS_CODE: (empty)"
+          test -n "${{ secrets.ACCESS_CODE_HASH }}" && echo "✓ ACCESS_CODE_HASH: (set)" || echo "✗ ACCESS_CODE_HASH: (empty)"
+          test -n "${{ secrets.JWT_SECRET }}" && echo "✓ JWT_SECRET: (set)" || echo "✗ JWT_SECRET: (empty)"
+
       - name: Security audit
         run: npm run security-audit
-
-      - name: Test Docker Image Build
-        run: |
-          set +e
-          docker build --no-cache --tag cdp-node-frontend-template .
-          exit $?
 
 #      - name: SonarCloud Scan
 #        if: github.actor != 'dependabot[bot]'

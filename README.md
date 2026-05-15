@@ -60,16 +60,16 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 
 ### Core
 
-| Variable                  | Default                         | Description                           |
-| ------------------------- | ------------------------------- | ------------------------------------- |
-| `NODE_ENV`                | `development`                   | `production` / `development` / `test` |
-| `PORT`                    | `3000`                          | Server port                           |
-| `SESSION_COOKIE_PASSWORD` | dev value                       | Must be 32+ chars in production       |
-| `SESSION_CACHE_ENGINE`    | `memory` (dev) / `redis` (prod) | Session backend                       |
-| `REDIS_HOST`              | `127.0.0.1`                     | Required when using Redis             |
-| `REDIS_PORT`              | `6379`                          | Redis endpoint port                   |
-| `REDIS_TLS`               | `true` in production            | Enable TLS for Redis connections      |
-| `USE_SINGLE_INSTANCE_CACHE` | `true`                        | Use primary endpoint (replication group) |
+| Variable                    | Default                         | Description                              |
+| --------------------------- | ------------------------------- | ---------------------------------------- |
+| `NODE_ENV`                  | `development`                   | `production` / `development` / `test`    |
+| `PORT`                      | `3000`                          | Server port                              |
+| `SESSION_COOKIE_PASSWORD`   | dev value                       | Must be 32+ chars in production          |
+| `SESSION_CACHE_ENGINE`      | `memory` (dev) / `redis` (prod) | Session backend                          |
+| `REDIS_HOST`                | `127.0.0.1`                     | Required when using Redis                |
+| `REDIS_PORT`                | `6379`                          | Redis endpoint port                      |
+| `REDIS_TLS`                 | `true` in production            | Enable TLS for Redis connections         |
+| `USE_SINGLE_INSTANCE_CACHE` | `true`                          | Use primary endpoint (replication group) |
 
 ### Backend integration
 

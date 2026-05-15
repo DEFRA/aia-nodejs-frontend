@@ -162,7 +162,9 @@ describe('#buildRedisClient', () => {
         port: 6380
       })
 
-      expect(Redis).toHaveBeenCalledWith(expect.objectContaining({ port: 6380 }))
+      expect(Redis).toHaveBeenCalledWith(
+        expect.objectContaining({ port: 6380 })
+      )
     })
 
     test('Should use redisConfig.port for cluster seed node connections', () => {
