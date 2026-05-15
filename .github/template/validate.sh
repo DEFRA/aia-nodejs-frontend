@@ -9,7 +9,7 @@ checkRedis() {
     echo  " ✔ Redis is responding to ping."
     return 0
   else
-    echo " ❌ Redis did not respond to ping
+    echo " ❌ Redis did not respond to ping"
     echo ""
     return 1
   fi
