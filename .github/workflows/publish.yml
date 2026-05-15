@@ -72,6 +72,25 @@ jobs:
           labels: |
             org.opencontainers.image.licenses=OGL-UK-3.0
 
+      - name: Validate build inputs
+        run: |
+          test -n "${{ vars.BACKEND_API_URL }}" || { echo "Missing var: BACKEND_API_URL"; exit 1; }
+          test -n "${{ vars.REDIS_HOST }}" || { echo "Missing var: REDIS_HOST"; exit 1; }
+          test -n "${{ secrets.ACCESS_CODE }}" || { echo "Missing secret: ACCESS_CODE"; exit 1; }
+          test -n "${{ secrets.ACCESS_CODE_HASH }}" || { echo "Missing secret: ACCESS_CODE_HASH"; exit 1; }
+          test -n "${{ secrets.JWT_SECRET }}" || { echo "Missing secret: JWT_SECRET"; exit 1; }
+
+      - name: Print resolved non-secret build vars
+        run: |
+          echo "SERVICE_VERSION=${{ vars.SERVICE_VERSION }}"
+          echo "BACKEND_API_URL=${{ vars.BACKEND_API_URL }}"
+          echo "FEATURE_SHOW_COST_USAGE=${{ vars.FEATURE_SHOW_COST_USAGE }}"
+          echo "FEATURE_SHOW_POLICY_DOCUMENTS=${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS }}"
+          echo "REDIS_HOST=${{ vars.REDIS_HOST }}"
+          echo "REDIS_PORT=${{ vars.REDIS_PORT || '6379' }}"
+          echo "USE_SINGLE_INSTANCE_CACHE=${{ vars.USE_SINGLE_INSTANCE_CACHE || 'true' }}"
+          echo "REDIS_TLS=${{ vars.REDIS_TLS || 'true' }}"
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
@@ -85,9 +104,9 @@ jobs:
             FEATURE_SHOW_COST_USAGE=${{ vars.FEATURE_SHOW_COST_USAGE }}
             FEATURE_SHOW_POLICY_DOCUMENTS=${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS }}
             REDIS_HOST=${{ vars.REDIS_HOST }}
-            REDIS_PORT=${{ vars.REDIS_PORT }}
-            USE_SINGLE_INSTANCE_CACHE=${{ vars.USE_SINGLE_INSTANCE_CACHE }}
-            REDIS_TLS=${{ vars.REDIS_TLS }}
+            REDIS_PORT=${{ vars.REDIS_PORT || '6379' }}
+            USE_SINGLE_INSTANCE_CACHE=${{ vars.USE_SINGLE_INSTANCE_CACHE || 'true' }}
+            REDIS_TLS=${{ vars.REDIS_TLS || 'true' }}
             ACCESS_CODE=${{ secrets.ACCESS_CODE }}
             ACCESS_CODE_HASH=${{ secrets.ACCESS_CODE_HASH }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
