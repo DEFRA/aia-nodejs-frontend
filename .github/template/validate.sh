@@ -2,6 +2,19 @@
 
 compose_file='.github/template/template-compose.yml'
 
+checkRedis() {
+  echo "checking redis"
+  output=$(docker compose -f "$compose_file" exec -it redis redis-cli --tls --insecure ping)
+  if [ "$output" = "PONG" ]; then
+    echo  " ✔ Redis is responding to ping."
+    return 0
+  else
+    echo " ❌ Redis did not respond to ping."
+    echo ""
+    return 1
+  fi
+}
+
 checkUrl() {
     URL=$1
 
@@ -37,11 +50,56 @@ checkLogSchema() {
     fi
 }
 
+generate_cert() {
+    local name="$1"
+    local cn="$2"
+    local opts="$3"
+    mkdir -p tests/tls
+    local keyfile=.github/template/tests/tls/${name}.key
+    local certfile=.github/template/tests/tls/${name}.crt
+
+    [ -f "$keyfile" ] || openssl genrsa -out "$keyfile" 2048
+    openssl req \
+        -new -sha256 \
+        -subj "/C=UK/ST=STATE/L=CITY/O=ORG_NAME/OU=OU_NAME/CN=redis" \
+        -addext "subjectAltName = DNS:localhost, DNS:redis" \
+        -key "$keyfile" | \
+        openssl x509 \
+            -req -sha256 \
+            -CA .github/template/tests/tls/ca.crt \
+            -CAkey .github/template/tests/tls/ca.key \
+            -days 999 \
+            -out "$certfile"
+}
+
 setup() {
   set -e
 
+  mkdir -p .github/template/tests/tls
+  [ -f .github/template/tests/tls/ca.key ] || openssl genrsa -out .github/template/tests/tls/ca.key 2048
+
+  echo 'generating ca.crt'
+  openssl req \
+      -x509 -new -nodes -sha256 \
+      -key .github/template/tests/tls/ca.key \
+      -days 3650 \
+      -subj '/O=Redis Test/CN=Certificate Authority' \
+      -out .github/template/tests/tls/ca.crt
+
+  echo 'generating ca.pem'
+  cat .github/template/tests/tls/ca.crt > .github/template/tests/tls/ca.pem
+
+  echo 'generating redis certs'
+  generate_cert 'redis' 'redis'
+  caPem="$(base64 .github/template/tests/tls/ca.crt)"
+  export REDIS_TEST_CA=$caPem
+  # Required for redis container to be able to read the certs.
+  chmod 777 .github/template/tests/tls/*
+
   echo 'starting docker'
-  docker compose -f "$compose_file" up --wait --wait-timeout 60 -d --quiet-pull
+  echo $REDIS_TEST_CA
+  # Start mongodb + templated service
+  REDIS_TEST_CA=$caPem docker compose -f "$compose_file" up --wait --wait-timeout 60 -d --quiet-pull
   sleep 3
 }
 
@@ -63,6 +121,8 @@ run_tests() {
   # Check endpoints respond
   checkUrl "http://localhost:8085/health"
   checkUrl "http://localhost:8085/"
+
+  checkRedis
 
   # Check its using ECS
   checkLogSchema

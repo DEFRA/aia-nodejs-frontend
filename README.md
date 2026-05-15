@@ -12,6 +12,7 @@
 
 - Node.js v24+
 - npm v10+
+- Redis (production only — dev defaults to in-memory session cache)
 
 ---
 
@@ -64,7 +65,11 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | `NODE_ENV`                | `development`                   | `production` / `development` / `test` |
 | `PORT`                    | `3000`                          | Server port                           |
 | `SESSION_COOKIE_PASSWORD` | dev value                       | Must be 32+ chars in production       |
-| `SESSION_CACHE_ENGINE`    | `memory`                        | Session backend                       |
+| `SESSION_CACHE_ENGINE`    | `memory` (dev) / `redis` (prod) | Session backend                       |
+| `REDIS_HOST`              | `127.0.0.1`                     | Required when using Redis             |
+| `REDIS_PORT`              | `6379`                          | Redis endpoint port                   |
+| `REDIS_TLS`               | `true` in production            | Enable TLS for Redis connections      |
+| `USE_SINGLE_INSTANCE_CACHE` | `true`                        | Use primary endpoint (replication group) |
 
 ### Backend integration
 
@@ -246,12 +251,14 @@ All checks must pass. Use `npm run pr-prep` to run the same checks locally befor
 
 ---
 
-## Docker / local stack
+## Docker / local stack with Redis
 
 ```bash
-# Start app via Docker Compose
+# Start app + Redis via Docker Compose
 docker compose up
 ```
+
+Redis is only required when `SESSION_CACHE_ENGINE=redis`. Development defaults to in-memory.
 
 ---
 
@@ -275,4 +282,4 @@ docker compose up
 | `src/client/javascripts/status-poller.js`            | Client-side singleton polling module                               |
 | `src/client/javascripts/application.js`              | GOV.UK component init + polling bootstrap                          |
 | `webpack.config.js`                                  | Bundles client JS/SCSS, copies GOV.UK assets                       |
-| `compose.yml`                                        | Docker Compose (app)                                                |
+| `compose.yml`                                        | Docker Compose (app + Redis)                                       |
