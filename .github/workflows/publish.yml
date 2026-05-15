@@ -86,6 +86,8 @@ jobs:
             FEATURE_SHOW_POLICY_DOCUMENTS=${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS }}
             REDIS_HOST=${{ vars.REDIS_HOST }}
             REDIS_PORT=${{ vars.REDIS_PORT }}
+            USE_SINGLE_INSTANCE_CACHE=${{ vars.USE_SINGLE_INSTANCE_CACHE }}
+            REDIS_TLS=${{ vars.REDIS_TLS }}
             ACCESS_CODE=${{ secrets.ACCESS_CODE }}
             ACCESS_CODE_HASH=${{ secrets.ACCESS_CODE_HASH }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
