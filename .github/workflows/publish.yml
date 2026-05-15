@@ -80,13 +80,15 @@ jobs:
           build-args: |
             GIT_COMMIT=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.revision'] }}
             BUILD_VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
-            SERVICE_VERSION=${{ vars.SERVICE_VERSION }}
+            SERVICE_VERSION=${{ vars.SERVICE_VERSION }}            
+            BACKEND_API_URL=${{ vars.BACKEND_API_URL }}            
+            FEATURE_SHOW_COST_USAGE=${{ vars.FEATURE_SHOW_COST_USAGE }}
+            FEATURE_SHOW_POLICY_DOCUMENTS=${{ vars.FEATURE_SHOW_POLICY_DOCUMENTS }}
+            REDIS_HOST=${{ vars.REDIS_HOST }}
+            REDIS_PORT=${{ vars.REDIS_PORT }}
             ACCESS_CODE=${{ secrets.ACCESS_CODE }}
             ACCESS_CODE_HASH=${{ secrets.ACCESS_CODE_HASH }}
-            BACKEND_API_URL=${{ secrets.BACKEND_API_URL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
-            FEATURE_SHOW_COST_USAGE=${{ secrets.FEATURE_SHOW_COST_USAGE }}
-            FEATURE_SHOW_POLICY_DOCUMENTS=${{ secrets.FEATURE_SHOW_POLICY_DOCUMENTS }}
           push: true
           labels: ${{ steps.meta.outputs.labels }}
           tags: ${{ steps.meta.outputs.tags }}
