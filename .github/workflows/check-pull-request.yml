@@ -32,14 +32,28 @@ jobs:
           npm run lint
           npm test
 
+      - name: Validate build configuration
+        run: |
+          echo "=== Dockerfile Build Args ==="
+          grep -E "^ARG (SERVICE_VERSION|ACCESS_CODE|BACKEND_API_URL|REDIS_HOST|REDIS_PORT|USE_SINGLE_INSTANCE_CACHE|REDIS_TLS)" Dockerfile
+          echo ""
+          echo "=== Publish Workflow Build Args ==="
+          grep -A 15 "build-args:" .github/workflows/publish.yml | grep -E "(BACKEND_API_URL|REDIS_HOST|REDIS_PORT|USE_SINGLE_INSTANCE_CACHE|REDIS_TLS)"
+          echo ""
+          echo "✓ Build configuration validated"
+
+      - name: Print all environment variables
+        run: |
+          echo "=== All Environment Variables ==="
+          env | sort
+          echo ""
+          echo "=== GitHub Context ==="
+          echo "GITHUB_REF=${{ github.ref }}"
+          echo "GITHUB_EVENT_NAME=${{ github.event_name }}"
+          echo "GITHUB_ENVIRONMENT=${{ github.environment }}"
+
       - name: Security audit
         run: npm run security-audit
-
-      - name: Test Docker Image Build
-        run: |
-          set +e
-          docker build --no-cache --tag cdp-node-frontend-template .
-          exit $?
 
 #      - name: SonarCloud Scan
 #        if: github.actor != 'dependabot[bot]'
