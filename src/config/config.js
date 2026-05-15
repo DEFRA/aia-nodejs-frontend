@@ -180,8 +180,8 @@ export const config = convict({
     cache: {
       engine: {
         doc: 'backend cache is written to',
-        format: ['memory'],
-        default: 'memory',
+        format: ['redis', 'memory'],
+        default: isProduction ? 'redis' : 'memory',
         env: 'SESSION_CACHE_ENGINE'
       },
       name: {
@@ -217,6 +217,51 @@ export const config = convict({
         default: isProduction,
         env: 'SESSION_COOKIE_SECURE'
       }
+    }
+  },
+  redis: {
+    host: {
+      doc: 'Redis cache host',
+      format: String,
+      default: '127.0.0.1',
+      env: 'REDIS_HOST'
+    },
+    port: {
+      doc: 'Redis cache port',
+      format: 'port',
+      default: 6379,
+      env: 'REDIS_PORT'
+    },
+    username: {
+      doc: 'Redis cache username',
+      format: String,
+      default: '',
+      env: 'REDIS_USERNAME'
+    },
+    password: {
+      doc: 'Redis cache password',
+      format: '*',
+      default: '',
+      sensitive: true,
+      env: 'REDIS_PASSWORD'
+    },
+    keyPrefix: {
+      doc: 'Redis cache key prefix name used to isolate the cached results across multiple clients',
+      format: String,
+      default: 'aia-frontend:',
+      env: 'REDIS_KEY_PREFIX'
+    },
+    useSingleInstanceCache: {
+      doc: 'Connect to a single Redis endpoint instead of a cluster slots endpoint.',
+      format: Boolean,
+      default: true,
+      env: 'USE_SINGLE_INSTANCE_CACHE'
+    },
+    useTLS: {
+      doc: 'Connect to redis using TLS',
+      format: Boolean,
+      default: isProduction,
+      env: 'REDIS_TLS'
     }
   },
   nunjucks: {
