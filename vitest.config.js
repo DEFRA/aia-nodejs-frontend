@@ -5,6 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     clearMocks: true,
+    include: ['test/**/*.test.js'],
     env: {
       MOCK_DATA_RESULT: 'false'
     },

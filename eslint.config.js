@@ -10,10 +10,11 @@ const base = neostandard({
 export default [
   ...base,
   {
-    files: ['src/client/**/*.js'],
+    files: ['src/client/**/*.js', 'test/client/**/*.js'],
     languageOptions: {
       globals: {
         FileReader: 'readonly',
+        MouseEvent: 'readonly',
         document: 'readonly',
         window: 'readonly',
         HTMLScriptElement: 'readonly'
