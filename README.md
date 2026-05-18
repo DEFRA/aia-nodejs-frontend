@@ -60,25 +60,25 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 
 ### Core
 
-| Variable                    | Default                         | Description                              |
-| --------------------------- | ------------------------------- | ---------------------------------------- |
-| `NODE_ENV`                  | `development`                   | `production` / `development` / `test`    |
-| `PORT`                      | `3000`                          | Server port                              |
-| `ACCESS_CODE`               | dev UUID                        | UUID required to access the service — **rotate before production** |
-| `ACCESS_CODE_HASH`          | dev hash                        | SHA-256 hash of `ACCESS_CODE` — must match |
-| `INACTIVITY_TIMEOUT_MS`     | `3600000`                       | Session inactivity timeout (ms) — default 1 hour |
-| `IS_AUTHENTICATION_REQUIRED`| `false`                         | Controls visibility of the Sign out button |
-| `SESSION_COOKIE_PASSWORD`   | dev value                       | Must be 32+ chars — **rotate before production** |
-| `SESSION_COOKIE_TTL`        | `14400000`                      | Session cookie lifetime (ms) — default 4 hours |
-| `SESSION_CACHE_ENGINE`      | `memory` (dev) / `redis` (prod) | Session backend                          |
-| `REDIS_HOST`                | `127.0.0.1`                     | Required when using Redis                |
-| `REDIS_PORT`                | `6379`                          | Redis endpoint port                      |
-| `REDIS_USERNAME`            | _(empty)_                       | Redis ACL username                       |
-| `REDIS_PASSWORD`            | _(empty)_                       | Redis password — set in production       |
-| `REDIS_TLS`                 | `true` in production            | Enable TLS for Redis connections         |
-| `USE_SINGLE_INSTANCE_CACHE` | `true`                          | Use primary endpoint (replication group) |
-| `HTTP_PROXY`                | _(none)_                        | HTTP proxy URL (e.g. for corporate networks) |
-| `ENABLE_SECURE_CONTEXT`     | `true` in production            | Enable HTTPS secure context              |
+| Variable                     | Default                         | Description                                                        |
+| ---------------------------- | ------------------------------- | ------------------------------------------------------------------ |
+| `NODE_ENV`                   | `development`                   | `production` / `development` / `test`                              |
+| `PORT`                       | `3000`                          | Server port                                                        |
+| `ACCESS_CODE`                | dev UUID                        | UUID required to access the service — **rotate before production** |
+| `ACCESS_CODE_HASH`           | dev hash                        | SHA-256 hash of `ACCESS_CODE` — must match                         |
+| `INACTIVITY_TIMEOUT_MS`      | `3600000`                       | Session inactivity timeout (ms) — default 1 hour                   |
+| `IS_AUTHENTICATION_REQUIRED` | `false`                         | Controls visibility of the Sign out button                         |
+| `SESSION_COOKIE_PASSWORD`    | dev value                       | Must be 32+ chars — **rotate before production**                   |
+| `SESSION_COOKIE_TTL`         | `14400000`                      | Session cookie lifetime (ms) — default 4 hours                     |
+| `SESSION_CACHE_ENGINE`       | `memory` (dev) / `redis` (prod) | Session backend                                                    |
+| `REDIS_HOST`                 | `127.0.0.1`                     | Required when using Redis                                          |
+| `REDIS_PORT`                 | `6379`                          | Redis endpoint port                                                |
+| `REDIS_USERNAME`             | _(empty)_                       | Redis ACL username                                                 |
+| `REDIS_PASSWORD`             | _(empty)_                       | Redis password — set in production                                 |
+| `REDIS_TLS`                  | `true` in production            | Enable TLS for Redis connections                                   |
+| `USE_SINGLE_INSTANCE_CACHE`  | `true`                          | Use primary endpoint (replication group)                           |
+| `HTTP_PROXY`                 | _(none)_                        | HTTP proxy URL (e.g. for corporate networks)                       |
+| `ENABLE_SECURE_CONTEXT`      | `true` in production            | Enable HTTPS secure context                                        |
 
 ### Backend integration
 
@@ -124,7 +124,7 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | `LOG_ENABLED`       | `true` (non-test)                  | Master log switch — set `false` to suppress all Pino output                                                                                       |
 | `LOG_LEVEL`         | `info`                             | Pino log level (`fatal` / `error` / `warn` / `info` / `debug` / `trace` / `silent`)                                                               |
 | `LOG_FORMAT`        | `pino-pretty` (dev) / `ecs` (prod) | Log output format                                                                                                                                 |
-| `GENERATE_LOG`      | `true`                             | Master switch — when `false`, `fetchWithLog` emits no debug logs and writes no log file                                                            |
+| `GENERATE_LOG`      | `true`                             | Master switch — when `false`, `fetchWithLog` emits no debug logs and writes no log file                                                           |
 | `GENERATE_LOG_FILE` | `true`                             | When `true` (and `GENERATE_LOG=true`), writes backend API calls to `backend-api.log` (newest entry at top). Has no effect if `GENERATE_LOG=false` |
 
 ---
