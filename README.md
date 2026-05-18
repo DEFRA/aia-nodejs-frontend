@@ -64,12 +64,21 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 | --------------------------- | ------------------------------- | ---------------------------------------- |
 | `NODE_ENV`                  | `development`                   | `production` / `development` / `test`    |
 | `PORT`                      | `3000`                          | Server port                              |
-| `SESSION_COOKIE_PASSWORD`   | dev value                       | Must be 32+ chars in production          |
+| `ACCESS_CODE`               | dev UUID                        | UUID required to access the service — **rotate before production** |
+| `ACCESS_CODE_HASH`          | dev hash                        | SHA-256 hash of `ACCESS_CODE` — must match |
+| `INACTIVITY_TIMEOUT_MS`     | `3600000`                       | Session inactivity timeout (ms) — default 1 hour |
+| `IS_AUTHENTICATION_REQUIRED`| `false`                         | Controls visibility of the Sign out button |
+| `SESSION_COOKIE_PASSWORD`   | dev value                       | Must be 32+ chars — **rotate before production** |
+| `SESSION_COOKIE_TTL`        | `14400000`                      | Session cookie lifetime (ms) — default 4 hours |
 | `SESSION_CACHE_ENGINE`      | `memory` (dev) / `redis` (prod) | Session backend                          |
 | `REDIS_HOST`                | `127.0.0.1`                     | Required when using Redis                |
 | `REDIS_PORT`                | `6379`                          | Redis endpoint port                      |
+| `REDIS_USERNAME`            | _(empty)_                       | Redis ACL username                       |
+| `REDIS_PASSWORD`            | _(empty)_                       | Redis password — set in production       |
 | `REDIS_TLS`                 | `true` in production            | Enable TLS for Redis connections         |
 | `USE_SINGLE_INSTANCE_CACHE` | `true`                          | Use primary endpoint (replication group) |
+| `HTTP_PROXY`                | _(none)_                        | HTTP proxy URL (e.g. for corporate networks) |
+| `ENABLE_SECURE_CONTEXT`     | `true` in production            | Enable HTTPS secure context              |
 
 ### Backend integration
 
@@ -99,8 +108,8 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 
 | Variable                        | Default | Description                                               |
 | ------------------------------- | ------- | --------------------------------------------------------- |
-| `FEATURE_SHOW_COST_USAGE`       | `false` | Show the **Cost Usage** link in the main navigation       |
-| `FEATURE_SHOW_POLICY_DOCUMENTS` | `false` | Show the **Policy Documents** link in the main navigation |
+| `FEATURE_SHOW_COST_USAGE`       | `true`  | Show the **Cost Usage** link in the main navigation       |
+| `FEATURE_SHOW_POLICY_DOCUMENTS` | `true`  | Show the **Policy Documents** link in the main navigation |
 
 ### Upload
 
@@ -112,10 +121,11 @@ All variables are validated at startup by Convict (`src/config/config.js`). Defa
 
 | Variable            | Default                            | Description                                                                                                                                       |
 | ------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LOG_ENABLED`       | `true` (non-test)                  | Master log switch — set `false` to suppress all Pino output                                                                                       |
 | `LOG_LEVEL`         | `info`                             | Pino log level (`fatal` / `error` / `warn` / `info` / `debug` / `trace` / `silent`)                                                               |
 | `LOG_FORMAT`        | `pino-pretty` (dev) / `ecs` (prod) | Log output format                                                                                                                                 |
-| `GENERATE_LOG`      | `false`                            | Master switch — when `true`, enables debug logging of all backend API calls                                                                       |
-| `GENERATE_LOG_FILE` | `false`                            | When `true` (and `GENERATE_LOG=true`), writes backend API calls to `backend-api.log` (newest entry at top). Has no effect if `GENERATE_LOG=false` |
+| `GENERATE_LOG`      | `true`                             | Master switch — when `false`, `fetchWithLog` emits no debug logs and writes no log file                                                            |
+| `GENERATE_LOG_FILE` | `true`                             | When `true` (and `GENERATE_LOG=true`), writes backend API calls to `backend-api.log` (newest entry at top). Has no effect if `GENERATE_LOG=false` |
 
 ---
 
@@ -151,7 +161,7 @@ The frontend proxies all data through the Hapi server — the browser never call
 3. Each document's agent rows are enriched: `totalTokens = inputTokens + outputTokens`
 4. A summary card row at the top shows total cost, total documents, and total tokens (input / output on separate lines)
 5. If the backend is unavailable (network error or non-OK status), the page falls back to `src/server/cost/cost-usage.json` and paginates it in memory
-6. The nav link is hidden by default — set `FEATURE_SHOW_COST_USAGE=true` to show it
+6. The nav link is shown by default — set `FEATURE_SHOW_COST_USAGE=false` to hide it
 
 #### Cost API response shape
 
@@ -214,14 +224,14 @@ name:   Guest User
 
 Every backend request carries:
 
-- `Authorization: Bearer <JWT>` — signed with `aia-documents-secret-key-for-jwt-32-chars`
+- `Authorization: Bearer <JWT>` — HS256, signed with `JWT_SECRET`
 - `X-User-Id` — resolved from session (populated by guest user mode) or `00000000-0000-0000-0000-000000000001` as default
 
 ---
 
 ## Testing
 
-Tests live alongside source files as `*.test.js`.
+Tests live in `test/`, mirroring the `src/` structure (e.g. `test/server/home/controller.test.js` tests `src/server/home/controller.js`).
 
 ```bash
 npm test              # single run + coverage report
