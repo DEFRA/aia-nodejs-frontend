@@ -30,7 +30,10 @@ export const accessCodePostController = {
 
     if (!accessCode || accessCode.trim() === '') {
       const errorMessage = 'Enter your access code'
-      request.logger.warn({ errorMessage }, 'Access code submission rejected: empty value')
+      request.logger.warn(
+        { errorMessage },
+        'Access code submission rejected: empty value'
+      )
       return h.view('access-code/index', {
         pageTitle: 'Enter access code',
         isAuthenticationRequired: false,
@@ -59,7 +62,10 @@ export const accessCodePostController = {
     }
 
     const errorMessage = 'Enter your valid access code'
-    request.logger.warn({ errorMessage }, 'Access code submission rejected: invalid code')
+    request.logger.warn(
+      { errorMessage, submittedCode: accessCode },
+      'Access code submission rejected: invalid code'
+    )
     return h.view('access-code/index', {
       pageTitle: 'Enter access code',
       isAuthenticationRequired: false,
