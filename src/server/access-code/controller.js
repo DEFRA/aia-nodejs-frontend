@@ -29,31 +29,41 @@ export const accessCodePostController = {
     const { accessCode } = request.payload || {}
 
     if (!accessCode || accessCode.trim() === '') {
+      const errorMessage = 'Enter your access code'
+      request.logger.warn({ errorMessage }, 'Access code submission rejected: empty value')
       return h.view('access-code/index', {
         pageTitle: 'Enter access code',
         isAuthenticationRequired: false,
-        errorMessage: 'Enter your access code'
+        errorMessage
       })
     }
 
     if (accessCode.length > 36) {
+      const errorMessage = 'Access code must be 36 characters or fewer'
+      request.logger.warn(
+        { length: accessCode.length, errorMessage },
+        'Access code submission rejected: exceeds maximum length'
+      )
       return h.view('access-code/index', {
         pageTitle: 'Enter access code',
         isAuthenticationRequired: false,
-        errorMessage: 'Access code must be 36 characters or fewer'
+        errorMessage
       })
     }
 
     if (isValidAccessCode(accessCode)) {
+      request.logger.info('Access code accepted')
       request.yar.set('accessGranted', true)
       request.yar.set('lastActivity', Date.now())
       return h.redirect('/home')
     }
 
+    const errorMessage = 'Enter your valid access code'
+    request.logger.warn({ errorMessage }, 'Access code submission rejected: invalid code')
     return h.view('access-code/index', {
       pageTitle: 'Enter access code',
       isAuthenticationRequired: false,
-      errorMessage: 'Enter your valid access code'
+      errorMessage
     })
   }
 }
