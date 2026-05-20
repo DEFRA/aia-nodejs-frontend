@@ -63,7 +63,7 @@ export const accessCodePostController = {
 
     const errorMessage = 'Enter your valid access code'
     request.logger.warn(
-      { errorMessage, submittedCode: accessCode },
+      { errorMessage },
       'Access code submission rejected: invalid code'
     )
     return h.view('access-code/index', {

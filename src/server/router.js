@@ -8,6 +8,7 @@ import { notAuthorized } from './not-authorized/index.js'
 import { accessCode } from './access-code/index.js'
 import { cost } from './cost/index.js'
 import { policyDocuments } from './policy-documents/index.js'
+import { error } from './error/index.js'
 import { serveStaticFiles } from './common/helpers/serve-static-files.js'
 
 export const router = {
@@ -18,6 +19,9 @@ export const router = {
 
       // Health-check route. Used by platform to check if service is running, do not remove!
       await server.register([health])
+
+      // Error page route
+      await server.register([error])
 
       // Application specific routes, add your own routes here
       await server.register([

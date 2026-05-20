@@ -29,10 +29,20 @@ export function catchAll(request, h) {
     request.logger.error(response?.stack)
   }
 
+  // Redirect 401 and 500+ errors to the dedicated error page
+  if (
+    statusCode === statusCodes.unauthorized ||
+    statusCode >= statusCodes.internalServerError
+  ) {
+    if (request.path !== '/error') {
+      return h.redirect(`/error?status=${statusCode}`).takeover()
+    }
+  }
+
   return h
     .view('error/index', {
       pageTitle: errorMessage,
-      heading: statusCode,
+      heading: errorMessage,
       message: errorMessage
     })
     .code(statusCode)

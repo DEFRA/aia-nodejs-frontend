@@ -18,7 +18,7 @@ import { resolveUser } from './common/helpers/user-resolver.js'
 export async function createServer() {
   setupProxy()
 
-  const publicPaths = ['/', '/health', '/public', '/favicon.ico']
+  const publicPaths = ['/', '/health', '/public', '/favicon.ico', '/error']
   const isPublicPath = (path) =>
     publicPaths.some(
       (p) => path === p || (p !== '/' && path.startsWith(p + '/'))
